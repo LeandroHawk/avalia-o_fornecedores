@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<section class="hero-cesari">
+  <div class="container-xl">
+    <p class="text-uppercase fw-bold mb-2">Grupo Cesari</p>
+    <h1 class="display-4">Avaliacao de fornecedores com seguranca, rastreabilidade e simplicidade.</h1>
+    <p class="lead col-lg-7 mt-3">Centralize questionarios, evidencias, devolucoes, qualificacoes e vencimentos em um fluxo claro para fornecedores e Compras.</p>
+    <div class="mt-4">
+      <a class="btn btn-light btn-lg" href="{% url 'login' %}">Acessar sistema</a>
+      <a class="btn btn-outline-light btn-lg ms-2" href="{% url 'dashboard' %}">Ver dashboard</a>
+    </div>
+  </div>
+</section>
+<section class="container-xl py-5">
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h2 class="card-title">Questionarios parametrizados</h2>
+          <p class="text-secondary">Versoes, categorias, pesos e perguntas ficam no banco, preservando historico das avaliacoes.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h2 class="card-title">Workflow auditavel</h2>
+          <p class="text-secondary">Envio, analise, devolucao, correcao e finalizacao passam por regras de backend e trilha de auditoria.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h2 class="card-title">Arquivos protegidos</h2>
+          <p class="text-secondary">Evidencias usam validacao de extensao, MIME, tamanho, nomes internos seguros e download autorizado.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

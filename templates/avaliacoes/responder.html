@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block titulo %}Responder questao - CESARI{% endblock %}
+{% block conteudo %}
+<div class="container-tight py-4">
+  <div class="card">
+    <div class="card-header"><h1 class="card-title">Responder questao</h1></div>
+    <div class="card-body">
+      <p class="fw-bold">{{ questao.enunciado }}</p>
+      <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label" for="{{ form.resposta.id_for_label }}">Resposta</label>
+          <select class="form-select" name="resposta" id="{{ form.resposta.id_for_label }}" data-resposta-select required>
+            {% for value,label in form.fields.resposta.choices %}
+              <option value="{{ value }}" {% if form.resposta.value == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-3" data-evidencia-field>
+          <label class="form-label" for="{{ form.evidencia.id_for_label }}">Evidencia</label>
+          <input class="form-control" type="file" name="evidencia" id="{{ form.evidencia.id_for_label }}">
+          <div class="form-hint">Obrigatoria quando a resposta for Sim.</div>
+        </div>
+        <div class="mb-3" data-justificativa-field>
+          <label class="form-label" for="{{ form.justificativa.id_for_label }}">Justificativa</label>
+          <textarea class="form-control" name="justificativa" id="{{ form.justificativa.id_for_label }}" rows="3">{{ form.justificativa.value|default_if_none:"" }}</textarea>
+          <div class="form-hint">Obrigatoria quando a resposta for Nao.</div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="{{ form.observacao.id_for_label }}">Observacao</label>
+          <textarea class="form-control" name="observacao" id="{{ form.observacao.id_for_label }}" rows="3">{{ form.observacao.value|default_if_none:"" }}</textarea>
+        </div>
+        <div class="d-flex justify-content-between">
+          <a class="btn btn-outline-secondary" href="{% url 'avaliacao_detail' avaliacao.pk %}">Voltar</a>
+          <button class="btn btn-primary" type="submit">Salvar alteracoes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

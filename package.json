@@ -1,0 +1,17 @@
+{
+  "name": "avaliacao_fornecedores_bid",
+  "version": "1.0.0",
+  "description": "Assets locais do Tabler para a aplicacao CESARI de avaliacao de fornecedores.",
+  "main": "index.js",
+  "scripts": {
+    "audit": "npm audit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "UNLICENSED",
+  "type": "commonjs",
+  "dependencies": {
+    "@tabler/core": "^1.5.1",
+    "@tabler/icons": "^3.46.0"
+  }
+}

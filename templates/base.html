@@ -1,0 +1,26 @@
+{% load static %}
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}CESARI - Avaliacao de Fornecedores{% endblock %}</title>
+  <link href="{% static 'tabler/css/tabler.min.css' %}" rel="stylesheet">
+  <link href="{% static 'css/custom.css' %}" rel="stylesheet">
+  {% block estilos %}{% endblock %}
+</head>
+<body>
+  {% include "partials/header.html" %}
+  <main>
+    {% include "partials/messages.html" %}
+    {% block conteudo %}{% endblock %}
+  </main>
+  {% include "partials/footer.html" %}
+  <a href="https://wa.me/5500000000000" class="whatsapp-float" target="_blank" rel="noopener" aria-label="Contato via WhatsApp">
+    <span aria-hidden="true">☎</span>
+  </a>
+  <script src="{% static 'tabler/js/tabler.min.js' %}"></script>
+  <script src="{% static 'js/scripts.js' %}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

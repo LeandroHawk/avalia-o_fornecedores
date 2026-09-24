@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block titulo %}Dashboard - CESARI{% endblock %}
+{% block conteudo %}
+<div class="page-wrapper">
+  <div class="page-header d-print-none">
+    <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <div class="page-pretitle">Visao geral</div>
+          <h1 class="page-title">Dashboard</h1>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="page-body">
+    <div class="container-xl">
+      <div class="row row-cards">
+        <div class="col-sm-6 col-lg-3"><div class="card metric-card"><div class="card-body"><div class="text-secondary">Fornecedores</div><div class="h1">{{ total_fornecedores }}</div></div></div></div>
+        <div class="col-sm-6 col-lg-3"><div class="card metric-card"><div class="card-body"><div class="text-secondary">Pendentes</div><div class="h1">{{ pendentes }}</div></div></div></div>
+        <div class="col-sm-6 col-lg-3"><div class="card metric-card"><div class="card-body"><div class="text-secondary">Em analise</div><div class="h1">{{ em_analise }}</div></div></div></div>
+        <div class="col-sm-6 col-lg-3"><div class="card metric-card"><div class="card-body"><div class="text-secondary">Devolvidas</div><div class="h1">{{ devolvidas }}</div></div></div></div>
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-body">
+              <h2 class="card-title">Vencimentos</h2>
+              <p><span class="status-dot bg-warning"></span>{{ vencendo }} avaliacao(oes) vencendo em ate 30 dias.</p>
+              <p><span class="status-dot bg-danger"></span>{{ vencidas }} avaliacao(oes) vencida(s).</p>
+              <a class="btn btn-outline-primary" href="{% url 'pendencias' %}">Abrir pendencias</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-body">
+              <h2 class="card-title">Indicadores</h2>
+              <p class="mb-2">Nota media: <strong>{{ media|default:"-" }}</strong></p>
+              {% for item in qualificacoes %}
+                <div class="d-flex justify-content-between border-bottom py-2"><span>{{ item.status }}</span><strong>{{ item.total }}</strong></div>
+              {% empty %}
+                <p class="text-secondary">Ainda nao ha qualificacoes finalizadas.</p>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
