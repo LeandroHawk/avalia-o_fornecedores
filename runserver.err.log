@@ -1,0 +1,28 @@
+INFO 2026-09-25 10:23:03,262 axes.apps: AXES: BEGIN version 8.3.1, blocking by ip_address
+INFO 2026-09-25 10:23:03,647 axes.apps: AXES: BEGIN version 8.3.1, blocking by ip_address
+Watching for file changes with StatReloader
+INFO 2026-09-25 10:23:03,675 django.utils.autoreload: Watching for file changes with StatReloader
+[25/Sep/2026 10:23:14] "GET / HTTP/1.1" 200 3588
+[25/Sep/2026 10:23:15] "GET /login/ HTTP/1.1" 200 2810
+C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\config\settings.py changed, reloading.
+INFO 2026-09-25 10:23:30,075 django.utils.autoreload: C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\config\settings.py changed, reloading.
+INFO 2026-09-25 10:23:30,605 axes.apps: AXES: BEGIN version 8.3.1, blocking by ip_address
+Watching for file changes with StatReloader
+INFO 2026-09-25 10:23:30,633 django.utils.autoreload: Watching for file changes with StatReloader
+C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\apps\avaliacoes\services.py changed, reloading.
+INFO 2026-09-25 10:23:41,817 django.utils.autoreload: C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\apps\avaliacoes\services.py changed, reloading.
+INFO 2026-09-25 10:23:42,425 axes.apps: AXES: BEGIN version 8.3.1, blocking by ip_address
+Watching for file changes with StatReloader
+INFO 2026-09-25 10:23:42,454 django.utils.autoreload: Watching for file changes with StatReloader
+[25/Sep/2026 10:23:59] "GET / HTTP/1.1" 200 3588
+[25/Sep/2026 10:23:59] "GET /login/ HTTP/1.1" 200 2810
+C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\config\urls.py changed, reloading.
+INFO 2026-09-25 11:31:37,896 django.utils.autoreload: C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\config\urls.py changed, reloading.
+INFO 2026-09-25 11:31:38,823 axes.apps: AXES: BEGIN version 8.3.1, blocking by ip_address
+Watching for file changes with StatReloader
+INFO 2026-09-25 11:31:38,866 django.utils.autoreload: Watching for file changes with StatReloader
+C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\config\settings.py changed, reloading.
+INFO 2026-09-25 11:31:43,532 django.utils.autoreload: C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\config\settings.py changed, reloading.
+INFO 2026-09-25 11:31:44,189 axes.apps: AXES: BEGIN version 8.3.1, blocking by ip_address
+Watching for file changes with StatReloader
+INFO 2026-09-25 11:31:44,219 django.utils.autoreload: Watching for file changes with StatReloader

@@ -18,9 +18,9 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import include, path
 
-from apps import api
-from apps.avaliacoes import views as avaliacao_views
-from apps.core import views as core_views
+from backend.apps import api
+from backend.apps.avaliacoes import views as avaliacao_views
+from backend.apps.core import views as core_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),

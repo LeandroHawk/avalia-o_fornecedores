@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block titulo %}Avaliacao de fornecedores - CESARI{% endblock %}
+{% block conteudo %}
+<form method="post" enctype="multipart/form-data" class="supplier-shell">
+  {% csrf_token %}
+  <aside class="supplier-nav">
+    <a href="#dados" class="supplier-nav-item active"><span>Dados cadastrais</span><strong>{{ dados_preenchidos }}/{{ dados_total }}</strong></a>
+    {% for grupo in categorias_data %}
+      <a href="#secao-{{ grupo.categoria.id }}" class="supplier-nav-item">
+        <span>{{ grupo.categoria.nome }}</span><strong>{{ grupo.respondidas }}/{{ grupo.total }}</strong>
+      </a>
+    {% endfor %}
+  </aside>
+
+  <section class="supplier-main">
+    {% if can_review %}
+      <div class="analysis-hero">
+        <h1>{{ avaliacao.fornecedor.razao_social }}</h1>
+        <p>CNPJ {{ avaliacao.fornecedor.cnpj }}. Enviado em {{ avaliacao.enviada_em|date:"d/m/Y"|default:"-" }}.</p>
+        <span class="analysis-status">{{ status_label }}</span>
+        <p>As respostas do fornecedor estao em modo leitura. Preencha a secao Uso interno e registre a decisao.</p>
+      </div>
+    {% endif %}
+
+    <div class="supplier-card" id="dados">
+      <div class="supplier-card-header">
+        <h2>Dados cadastrais</h2>
+        <span>{{ dados_preenchidos }} de {{ dados_total }} preenchidos</span>
+      </div>
+      <div class="supplier-card-body">
+        <div class="row g-3">
+          <div class="col-md-8"><label class="form-label">Razao social</label>{{ cadastro_form.razao_social }}</div>
+          <div class="col-md-4"><label class="form-label">Nome fantasia</label>{{ cadastro_form.nome_fantasia }}</div>
+          <div class="col-md-4"><label class="form-label">CNPJ</label>{{ cadastro_form.cnpj }}</div>
+          <div class="col-md-4"><label class="form-label">Inscricao municipal</label>{{ cadastro_form.inscricao_municipal }}</div>
+          <div class="col-md-4"><label class="form-label">Inscricao estadual (IE)</label>{{ cadastro_form.inscricao_estadual }}</div>
+          <div class="col-12"><label class="form-label">Endereco</label>{{ cadastro_form.endereco }}</div>
+          <div class="col-md-6"><label class="form-label">Cidade</label>{{ cadastro_form.cidade }}</div>
+          <div class="col-md-4"><label class="form-label">Estado</label>{{ cadastro_form.estado }}</div>
+          <div class="col-md-6"><label class="form-label">Telefone</label>{{ cadastro_form.telefone }}</div>
+          <div class="col-md-6"><label class="form-label">Site</label>{{ cadastro_form.site }}</div>
+          <div class="col-md-6"><label class="form-label">Quantidade de funcionarios</label>{{ cadastro_form.quantidade_funcionarios }}</div>
+          <div class="col-md-8"><label class="form-label">Responsavel pelo preenchimento</label>{{ cadastro_form.responsavel }}</div>
+          <div class="col-md-4"><label class="form-label">Cargo</label>{{ cadastro_form.cargo_responsavel }}</div>
+        </div>
+      </div>
+    </div>
+
+    {% for grupo in categorias_data %}
+      <div class="supplier-card {% if grupo.categoria.nome == 'Uso interno (Compras)' %}internal-card{% endif %}" id="secao-{{ grupo.categoria.id }}">
+        <div class="supplier-card-header">
+          <h2>{{ grupo.categoria.nome }}</h2>
+          <span>{{ grupo.respondidas }} de {{ grupo.total }} respondidas</span>
+        </div>
+        {% if grupo.categoria.nome == "Uso interno (Compras)" %}
+          <div class="internal-note">Secao de preenchimento exclusivo da equipe de Compras. O fornecedor nao responde estes itens.</div>
+        {% endif %}
+        {% for item in grupo.questoes %}
+          <div class="supplier-question">
+            <div class="question-copy">
+              <strong>{{ item.questao.enunciado }}</strong>
+              {% if item.questao.ajuda %}<small>{{ item.questao.ajuda }}</small>{% endif %}
+              {% if item.resposta and item.resposta.observacao %}<small>Parecer: {{ item.resposta.observacao }}</small>{% endif %}
+              {% if item.resposta %}
+                {% for evidencia in item.resposta.evidencias.all %}
+                  <a class="badge bg-green-lt mt-2" href="{% url 'evidencia_download' evidencia.pk %}">{{ evidencia.nome_original }}</a>
+                {% endfor %}
+              {% endif %}
+            </div>
+            <div class="question-control">
+              {% if item.questao.tipo == "ESCALA_0_5" %}
+                <div class="btn-group stable-group" role="group">
+                  {% for value in "012345" %}
+                    <input type="radio" class="btn-check" name="q_{{ item.questao.id }}" id="q{{ item.questao.id }}_{{ value }}" value="{{ value }}" {% if item.resposta.resposta == value %}checked{% endif %} {% if not item.editable %}disabled{% endif %}>
+                    <label class="btn btn-outline-primary" for="q{{ item.questao.id }}_{{ value }}">{{ value }}</label>
+                  {% endfor %}
+                </div>
+              {% elif item.questao.tipo == "MULTIPLA_ESCOLHA" %}
+                <select class="form-select" name="q_{{ item.questao.id }}" {% if not item.editable %}disabled{% endif %}>
+                  <option value="">Selecione</option>
+                  {% for opcao in item.opcoes %}
+                    <option value="{{ opcao.valor }}" {% if item.resposta.resposta == opcao.valor %}selected{% endif %}>{{ opcao.rotulo }}</option>
+                  {% endfor %}
+                </select>
+              {% elif item.questao.tipo == "ARQUIVO" %}
+                <input type="hidden" name="q_{{ item.questao.id }}" value="SIM">
+                <label class="btn btn-outline-primary file-button">
+                  Anexar arquivo
+                  <input class="visually-hidden" type="file" name="q_{{ item.questao.id }}_file" {% if not item.editable %}disabled{% endif %}>
+                </label>
+                {% if item.missing_file %}<span class="badge bg-yellow-lt">Anexo pendente</span>{% endif %}
+              {% else %}
+                <div class="btn-group stable-group" role="group">
+                  <input type="radio" class="btn-check" name="q_{{ item.questao.id }}" id="q{{ item.questao.id }}_sim" value="SIM" {% if item.resposta.resposta == "SIM" %}checked{% endif %} {% if not item.editable %}disabled{% endif %}>
+                  <label class="btn btn-outline-primary" for="q{{ item.questao.id }}_sim">Sim</label>
+                  <input type="radio" class="btn-check" name="q_{{ item.questao.id }}" id="q{{ item.questao.id }}_nao" value="NAO" {% if item.resposta.resposta == "NAO" %}checked{% endif %} {% if not item.editable %}disabled{% endif %}>
+                  <label class="btn btn-outline-primary" for="q{{ item.questao.id }}_nao">Nao</label>
+                  {% if item.questao.critica %}<span class="critical-chip">Critico</span>{% endif %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endfor %}
+  </section>
+
+  <aside class="supplier-progress">
+    {% if can_review %}
+      <div class="progress-card">
+        <div class="review-score">
+          <strong>{{ progresso }}<span>%</span></strong>
+          <div class="score-track"><i style="width: {{ progresso }}%"></i><b class="mark-70">70</b><b class="mark-85">85</b></div>
+          <em>{% if apto %}Apto a homologacao{% else %}Aguardando avaliacao{% endif %}</em>
+        </div>
+        <div class="progress-top">
+          <strong>{{ progress_done }} de {{ progress_total }} campos preenchidos</strong>
+          <span class="badge bg-primary-lt">{{ progresso }}%</span>
+        </div>
+        <p>Nota interna: <strong>{{ avaliacao.pontuacao|default:"aguardando avaliacao" }}</strong></p>
+        <h3>Por secao</h3>
+        {% for grupo in categorias_data %}
+          {% if grupo.categoria.nome != "Uso interno (Compras)" %}
+            <div class="section-score">
+              <span>{{ grupo.categoria.nome }}</span><strong>{{ grupo.percentual }}%</strong>
+              <div class="progress progress-xs"><div class="progress-bar" style="width: {{ grupo.percentual }}%"></div></div>
+            </div>
+          {% endif %}
+        {% endfor %}
+        <h3>Criticos nao atendidos</h3>
+        <p class="text-secondary">{% if criticos %}{{ criticos }} item(ns) critico(s){% else %}Nenhum ate o momento{% endif %}</p>
+        <label class="form-label">Parecer de Compras</label>
+        <textarea class="form-control" name="parecer" rows="4" placeholder="Registre o parecer da analise"></textarea>
+        <div class="d-flex flex-wrap gap-2 mt-3">
+          <button class="btn btn-primary" type="submit" name="action" value="homologar">Homologar</button>
+          <button class="btn btn-outline-primary" type="submit" name="action" value="iniciar_analise">Salvar analise</button>
+          <button class="btn btn-outline-danger" type="submit" name="action" value="reprovar">Reprovar</button>
+          <a class="btn btn-outline-secondary" href="{% url 'avaliacao_list' %}">Voltar a lista</a>
+          <button class="btn btn-primary" type="button" onclick="window.print()">Imprimir ou salvar PDF</button>
+        </div>
+      </div>
+    {% else %}
+      <div class="progress-card">
+        <h3>Seu progresso</h3>
+        <div class="progress-number">{{ progresso }}<span>%</span></div>
+        <div class="progress progress-sm mb-3"><div class="progress-bar" style="width: {{ progresso }}%"></div></div>
+        <span class="badge bg-primary-lt">{{ status_label }}</span>
+        <p class="text-secondary mt-3">Faltam {{ pendencias }} respostas e {{ anexos_pendentes }} anexos.</p>
+        <div class="d-grid gap-2">
+          <button class="btn btn-outline-primary" type="submit" name="action" value="salvar">Salvar rascunho</button>
+          <button class="btn btn-primary" type="submit" name="action" value="enviar" {% if pendencias %}disabled{% endif %}>Enviar para analise</button>
+        </div>
+      </div>
+    {% endif %}
+  </aside>
+</form>
+{% endblock %}

@@ -50,20 +50,20 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'apps.accounts',
-    'apps.core',
-    'apps.fornecedores',
-    'apps.questionarios',
-    'apps.avaliacoes',
-    'apps.qualificacoes',
-    'apps.notificacoes',
-    'apps.analytics',
-    'apps.auditoria',
+    'backend.apps.accounts',
+    'backend.apps.core',
+    'backend.apps.fornecedores',
+    'backend.apps.questionarios',
+    'backend.apps.avaliacoes',
+    'backend.apps.qualificacoes',
+    'backend.apps.notificacoes',
+    'backend.apps.analytics',
+    'backend.apps.auditoria',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'apps.core.middleware.SecurityHeadersMiddleware',
+    'backend.apps.core.middleware.SecurityHeadersMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -78,7 +78,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [BASE_DIR / 'frontend' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -164,6 +164,8 @@ PASSWORD_HASHERS = [
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SECURE = env("DJANGO_SESSION_COOKIE_SECURE")
 SESSION_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_AGE = env.int("DJANGO_SESSION_COOKIE_AGE", default=3600)
+SESSION_SAVE_EVERY_REQUEST = True
 CSRF_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SECURE = env("DJANGO_CSRF_COOKIE_SECURE")
 CSRF_COOKIE_SAMESITE = "Lax"
@@ -177,9 +179,11 @@ REFERRER_POLICY = "same-origin"
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
+ANTIVIRUS_COMMAND = env("DJANGO_ANTIVIRUS_COMMAND", default="")
+ANTIVIRUS_REQUIRED = env.bool("DJANGO_ANTIVIRUS_REQUIRED", default=True)
 
 AXES_FAILURE_LIMIT = env.int("AXES_FAILURE_LIMIT", default=5)
-AXES_COOLOFF_TIME = env.int("AXES_COOLOFF_TIME", default=1)
+AXES_COOLOFF_TIME = env.float("AXES_COOLOFF_TIME", default=5 / 60)
 AXES_RESET_ON_SUCCESS = True
 
 REST_FRAMEWORK = {
@@ -189,6 +193,14 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
     "DEFAULT_RENDERER_CLASSES": ["rest_framework.renderers.JSONRenderer"],
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.UserRateThrottle",
+        "rest_framework.throttling.AnonRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "user": env("DRF_THROTTLE_USER", default="300/min"),
+        "anon": env("DRF_THROTTLE_ANON", default="30/min"),
+    },
 }
 
 LOGGING = {
