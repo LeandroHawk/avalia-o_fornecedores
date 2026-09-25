@@ -19,5 +19,3 @@ class Auditoria(TimeStampedModel):
 
     def __str__(self):
         return f"{self.acao} {self.objeto} {self.objeto_id}"
-
-# Create your models here.

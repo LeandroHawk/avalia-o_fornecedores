@@ -51,5 +51,3 @@ class QuestaoAdmin(admin.ModelAdmin):
 class OpcaoRespostaAdmin(admin.ModelAdmin):
     list_display = ("rotulo", "questao", "valor", "pontuacao", "ativa")
     list_filter = ("ativa",)
-
-# Register your models here.

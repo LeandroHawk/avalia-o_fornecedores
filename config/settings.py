@@ -57,7 +57,6 @@ INSTALLED_APPS = [
     'backend.apps.avaliacoes',
     'backend.apps.qualificacoes',
     'backend.apps.notificacoes',
-    'backend.apps.analytics',
     'backend.apps.auditoria',
 ]
 
@@ -139,7 +138,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [BASE_DIR / "static"]
+STATICFILES_DIRS = [BASE_DIR / "static", BASE_DIR / "frontend" / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 MEDIA_URL = "/media-protected/"

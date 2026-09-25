@@ -21,5 +21,3 @@ class FornecedorUsuarioAdmin(admin.ModelAdmin):
     list_display = ("fornecedor", "user", "principal", "ativo")
     list_filter = ("principal", "ativo")
     search_fields = ("fornecedor__razao_social", "user__username", "user__email")
-
-# Register your models here.

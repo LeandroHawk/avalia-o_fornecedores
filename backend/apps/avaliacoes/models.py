@@ -123,5 +123,3 @@ class HistoricoAvaliacao(TimeStampedModel):
 
     def __str__(self):
         return f"{self.acao} - {self.avaliacao}"
-
-# Create your models here.

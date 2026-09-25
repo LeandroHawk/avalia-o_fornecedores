@@ -17,5 +17,3 @@ class UserProfile(TimeStampedModel):
 
     def __str__(self):
         return f"{self.user.get_username()} ({self.get_role_display()})"
-
-# Create your models here.

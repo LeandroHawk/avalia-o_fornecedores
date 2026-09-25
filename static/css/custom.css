@@ -82,7 +82,13 @@ body {
 
 .hero-cesari h1 {
   max-width: 760px;
+  color: #fff;
   font-weight: 800;
+}
+
+.hero-cesari h1.display-4,
+.hero-cesari .display-4 {
+  color: #fff !important;
 }
 
 .supplier-shell {
@@ -513,6 +519,14 @@ body {
   border-radius: 8px;
 }
 
+@media (max-width: 1320px) {
+  .supplier-shell {
+    width: min(100% - 28px, 1160px);
+    grid-template-columns: 210px minmax(0, 1fr) 270px;
+    gap: 18px;
+  }
+}
+
 @media (max-width: 1180px) {
   .supplier-shell {
     grid-template-columns: 200px minmax(0, 1fr);
@@ -521,6 +535,79 @@ body {
   .supplier-progress {
     grid-column: 2;
     position: static;
+  }
+}
+
+@media (max-width: 992px) {
+  .app-header .container-fluid {
+    align-items: flex-start;
+  }
+
+  .app-brand {
+    max-width: calc(100vw - 84px);
+  }
+
+  .app-brand span {
+    min-width: 0;
+  }
+
+  .app-brand strong,
+  .app-brand small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .navbar-collapse .btn,
+  .navbar-collapse form {
+    width: 100%;
+  }
+
+  .navbar-collapse .btn-group {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .hero-cesari {
+    min-height: calc(100svh - 58px);
+    padding: 64px 0;
+    background-position: center;
+  }
+
+  .hero-cesari h1 {
+    max-width: 680px;
+    font-size: 42px;
+    line-height: 1.12;
+  }
+
+  .hero-cesari .lead {
+    max-width: 640px;
+  }
+
+  .page-header .container-xl,
+  .page-body .container-xl,
+  .container-xl.py-4,
+  .container-xl.py-5 {
+    max-width: calc(100% - 24px);
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .metric-strip {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .metric-strip div {
+    border-bottom: 1px solid var(--cesari-line);
+  }
+
+  .metric-strip div:nth-child(3n) {
+    border-right: 0;
+  }
+
+  .analysis-status {
+    width: 100%;
   }
 }
 
@@ -571,19 +658,242 @@ body {
   }
 }
 
+@media (max-width: 760px) {
+  .hero-cesari {
+    min-height: auto;
+    padding: 54px 0 46px;
+  }
+
+  .hero-cesari h1 {
+    font-size: 34px;
+    line-height: 1.14;
+  }
+
+  .hero-cesari .lead {
+    font-size: 16px;
+  }
+
+  .hero-cesari .btn-lg {
+    width: 100%;
+    margin: 0 0 10px !important;
+  }
+
+  .page-title {
+    font-size: 24px;
+  }
+
+  .page-body {
+    margin-top: 0;
+  }
+
+  .card-body,
+  .supplier-card-body,
+  .progress-card {
+    padding: 14px;
+  }
+
+  .metric-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .metric-strip div:nth-child(3n) {
+    border-right: 1px solid var(--cesari-line);
+  }
+
+  .metric-strip div:nth-child(2n) {
+    border-right: 0;
+  }
+
+  .toolbar-line {
+    gap: 12px;
+  }
+
+  .filter-pills {
+    padding-bottom: 4px;
+    scroll-snap-type: x proximity;
+  }
+
+  .filter-pills span {
+    scroll-snap-align: start;
+  }
+
+  .table-card {
+    background: transparent;
+    border: 0;
+  }
+
+  .table-card .table-responsive {
+    overflow: visible;
+  }
+
+  .table-card table,
+  .table-card thead,
+  .table-card tbody,
+  .table-card tr,
+  .table-card td {
+    display: block;
+  }
+
+  .table-card thead {
+    display: none;
+  }
+
+  .table-card tbody {
+    display: grid;
+    gap: 12px;
+  }
+
+  .table-card tbody tr {
+    padding: 10px 14px;
+    background: #fff;
+    border: 1px solid var(--cesari-line);
+    border-radius: 8px;
+  }
+
+  .table-card td {
+    display: grid;
+    grid-template-columns: minmax(94px, 36%) minmax(0, 1fr);
+    gap: 10px;
+    align-items: center;
+    min-height: 38px;
+    padding: 9px 0 !important;
+    border: 0;
+    border-bottom: 1px solid #edf1f7;
+    text-align: left !important;
+    word-break: break-word;
+  }
+
+  .table-card td:last-child {
+    border-bottom: 0;
+  }
+
+  .table-card td::before {
+    content: attr(data-label);
+    color: var(--cesari-muted);
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .table-card td[data-label=""]::before {
+    display: none;
+  }
+
+  .table-card td.text-end {
+    grid-template-columns: 1fr;
+  }
+
+  .table-card td.text-end .btn {
+    width: 100%;
+  }
+
+  .mini-bar {
+    display: block;
+    width: 100%;
+    margin: 6px 0 0;
+  }
+
+  .container-tight {
+    width: min(100% - 24px, 560px);
+  }
+}
+
 @media (max-width: 520px) {
+  body {
+    min-width: 320px;
+  }
+
+  .app-header {
+    min-height: 54px;
+  }
+
   .app-logo {
-    width: 70px;
+    width: 58px;
+  }
+
+  .app-brand {
+    gap: 10px;
   }
 
   .app-brand strong {
-    font-size: 15px;
+    font-size: 14px;
+  }
+
+  .app-brand small {
+    font-size: 11px;
+  }
+
+  .navbar-toggler {
+    padding: 7px 9px;
+  }
+
+  .hero-cesari {
+    padding: 42px 0 36px;
+  }
+
+  .hero-cesari h1 {
+    font-size: 28px;
+  }
+
+  .hero-cesari .text-uppercase {
+    font-size: 12px;
+  }
+
+  .metric-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .metric-strip div,
+  .metric-strip div:nth-child(2n),
+  .metric-strip div:nth-child(3n) {
+    border-right: 0;
+  }
+
+  .metric-strip strong {
+    font-size: 26px;
+  }
+
+  .analysis-hero {
+    padding: 14px;
+  }
+
+  .analysis-hero h1 {
+    font-size: 21px;
   }
 
   .supplier-card-header {
     align-items: flex-start;
     flex-direction: column;
+    gap: 4px;
     padding: 10px 14px;
+  }
+
+  .supplier-question {
+    padding: 12px 14px;
+  }
+
+  .question-control,
+  .question-control .btn-group,
+  .question-control .btn,
+  .question-control .form-select,
+  .question-control .file-button {
+    width: 100%;
+  }
+
+  .question-control .btn-group .btn {
+    flex: 1 1 0;
+  }
+
+  .critical-chip {
+    width: 100%;
+    text-align: center;
+  }
+
+  .progress-number {
+    font-size: 40px;
+  }
+
+  .review-score strong {
+    font-size: 44px;
   }
 
   .stable-group .btn {
@@ -592,7 +902,43 @@ body {
     padding-right: 10px;
   }
 
-  .metric-strip {
+  .table-card td {
     grid-template-columns: 1fr;
+    gap: 3px;
+  }
+
+  .status-pill {
+    width: 100%;
+  }
+
+  .d-flex.justify-content-between {
+    gap: 10px;
+  }
+
+  .d-flex.justify-content-between > .btn,
+  .d-flex.justify-content-between > a.btn {
+    flex: 1 1 0;
+  }
+}
+
+@media (max-width: 380px) {
+  .app-brand strong {
+    max-width: 190px;
+  }
+
+  .app-brand small {
+    display: none;
+  }
+
+  .hero-cesari h1 {
+    font-size: 25px;
+  }
+
+  .supplier-shell {
+    width: min(100% - 16px, 720px);
+  }
+
+  .btn {
+    white-space: normal;
   }
 }

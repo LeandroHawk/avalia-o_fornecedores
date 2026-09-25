@@ -1,47 +1,280 @@
 {% extends "base.html" %}
+{% load static %}
 {% block titulo %}Entrar - CESARI{% endblock %}
 {% block header %}{% endblock %}
 {% block estilos %}
 <style>
+  body {
+    background: #071a3b;
+  }
+
   main {
     min-height: 100vh;
   }
 
   .login-screen {
+    position: relative;
     min-height: 100vh;
-    display: flex;
+    display: grid;
     align-items: center;
     justify-content: center;
-    padding: 24px;
+    padding: 32px 20px;
+    overflow: hidden;
+    background:
+      linear-gradient(135deg, rgba(3, 13, 32, .82), rgba(18, 44, 92, .76)),
+      #071a3b;
   }
 
-  .login-card {
-    width: 432px !important;
-    max-width: calc(100vw - 32px);
+  .login-screen::before {
+    content: "";
+    position: absolute;
+    inset: -34px;
+    background:
+      linear-gradient(120deg, rgba(255, 255, 255, .10), transparent 34%),
+      linear-gradient(315deg, rgba(70, 105, 180, .42), transparent 46%),
+      linear-gradient(180deg, #071a3b, #102b5b);
+    filter: blur(22px);
+    transform: scale(1.04);
+    opacity: .9;
+  }
+
+  .login-screen::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 14% 16%, rgba(255, 255, 255, .16), transparent 22%),
+      radial-gradient(circle at 82% 72%, rgba(95, 130, 205, .28), transparent 30%),
+      linear-gradient(135deg, rgba(4, 16, 39, .74), rgba(19, 45, 91, .58));
+  }
+
+  .login-shell {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: minmax(280px, 420px) minmax(360px, 460px);
+    width: min(920px, calc(100vw - 40px));
+    min-height: 560px;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #ccd6e8;
+    border-radius: 8px;
+    box-shadow: 0 24px 60px rgba(15, 32, 64, .16);
+  }
+
+  .login-brand-panel {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 42px 38px;
+    color: #fff;
+    background:
+      linear-gradient(145deg, rgba(8, 25, 58, .98), rgba(53, 76, 140, .96));
+  }
+
+  .login-brand-panel::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, 0));
+    pointer-events: none;
+  }
+
+  .login-brand-content,
+  .login-brand-footer {
+    position: relative;
+    z-index: 1;
+  }
+
+  .login-logo-box {
+    width: 214px;
+    padding: 18px;
+    margin-bottom: 42px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, .16);
+  }
+
+  .login-logo-box img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .login-brand-panel h1 {
+    margin: 0;
+    color: #fff;
+    font-size: 34px;
+    line-height: 1.1;
+    font-weight: 800;
+  }
+
+  .login-brand-panel p {
+    max-width: 310px;
+    margin: 14px 0 0;
+    color: rgba(255, 255, 255, .82);
+    font-size: 15px;
+    line-height: 1.55;
+  }
+
+  .login-brand-footer {
+    color: rgba(255, 255, 255, .72);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0;
+  }
+
+  .login-form-panel {
+    display: flex;
+    align-items: center;
+    padding: 52px;
+  }
+
+  .login-form-inner {
+    width: 100%;
+  }
+
+  .login-mobile-logo {
+    display: none;
+    width: 174px;
+    margin: 0 auto 26px;
+  }
+
+  .login-mobile-logo img {
+    width: 100%;
+    height: auto;
+  }
+
+  .login-eyebrow {
+    margin: 0 0 8px;
+    color: var(--cesari-blue);
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+
+  .login-title {
+    margin: 0 0 8px;
+    color: #07152d;
+    font-size: 28px;
+    line-height: 1.2;
+    font-weight: 800;
+  }
+
+  .login-subtitle {
+    margin: 0 0 30px;
+    color: #66728a;
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  .login-form-panel .form-label {
+    color: #263650;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .login-form-panel .form-control {
+    min-height: 46px;
+    border-color: #cdd6e5;
+    border-radius: 6px;
+    color: #101828;
+  }
+
+  .login-form-panel .form-control:focus {
+    border-color: var(--cesari-blue);
+    box-shadow: 0 0 0 .25rem rgba(53, 76, 140, .16);
+  }
+
+  .login-submit {
+    min-height: 46px;
+    margin-top: 8px;
+    border-radius: 6px;
+    font-weight: 800;
+    box-shadow: 0 10px 22px rgba(53, 76, 140, .22);
+  }
+
+  .login-submit:hover {
+    background: #2f447e;
+    border-color: #2f447e;
+  }
+
+  @media (max-width: 860px) {
+    .login-shell {
+      grid-template-columns: 1fr;
+      width: min(100%, 460px);
+      min-height: auto;
+    }
+
+    .login-brand-panel {
+      display: none;
+    }
+
+    .login-form-panel {
+      padding: 34px 26px;
+    }
+
+    .login-mobile-logo {
+      display: block;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .login-screen {
+      padding: 18px 12px;
+    }
+
+    .login-form-panel {
+      padding: 28px 18px;
+    }
+
+    .login-title {
+      font-size: 24px;
+    }
   }
 </style>
 {% endblock %}
 {% block conteudo %}
 <div class="login-screen">
-  <div class="card login-card">
-    <div class="card-body">
-      <h1 class="h2 text-center mb-4">Acesse sua conta</h1>
-      <form method="post" novalidate>
-        {% csrf_token %}
-        <div class="mb-3">
-          <label class="form-label" for="{{ form.username.id_for_label }}">Usuario</label>
-          <input class="form-control" type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}" autocomplete="username" required>
+  <section class="login-shell" aria-label="Login Cesari">
+    <aside class="login-brand-panel">
+      <div class="login-brand-content">
+        <div class="login-logo-box">
+          <img src="{% static 'img/logotipo-cesari-color.png' %}" alt="Cesari">
         </div>
-        <div class="mb-3">
-          <label class="form-label" for="{{ form.password.id_for_label }}">Senha</label>
-          <input class="form-control" type="password" name="{{ form.password.name }}" id="{{ form.password.id_for_label }}" autocomplete="current-password" required>
+        <h1>Avaliacao de fornecedores</h1>
+        <p>Ambiente corporativo para acesso seguro ao portal Cesari.</p>
+      </div>
+      <div class="login-brand-footer">CESARI - Portal corporativo</div>
+    </aside>
+
+    <div class="login-form-panel">
+      <div class="login-form-inner">
+        <div class="login-mobile-logo">
+          <img src="{% static 'img/logotipo-cesari-color.png' %}" alt="Cesari">
         </div>
-        {% if form.errors %}
-          <div class="alert alert-danger">Usuario ou senha invalidos.</div>
-        {% endif %}
-        <button class="btn btn-primary w-100" type="submit">Entrar</button>
-      </form>
+        <p class="login-eyebrow">Acesso restrito</p>
+        <h1 class="login-title">Acesse sua conta</h1>
+        <p class="login-subtitle">Informe suas credenciais para continuar.</p>
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label" for="{{ form.username.id_for_label }}">Usuario</label>
+            <input class="form-control" type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}" autocomplete="username" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="{{ form.password.id_for_label }}">Senha</label>
+            <input class="form-control" type="password" name="{{ form.password.name }}" id="{{ form.password.id_for_label }}" autocomplete="current-password" required>
+          </div>
+          {% if form.errors %}
+            <div class="alert alert-danger">Usuario ou senha invalidos.</div>
+          {% endif %}
+          <button class="btn btn-primary w-100 login-submit" type="submit">Entrar</button>
+        </form>
+      </div>
     </div>
-  </div>
+  </section>
 </div>
 {% endblock %}

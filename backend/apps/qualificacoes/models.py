@@ -29,5 +29,3 @@ class Qualificacao(TimeStampedModel):
 
     def __str__(self):
         return f"{self.fornecedor} - {self.get_status_display()}"
-
-# Create your models here.

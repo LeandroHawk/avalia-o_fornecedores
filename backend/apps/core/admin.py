@@ -7,5 +7,3 @@ from .models import Configuracao
 class ConfiguracaoAdmin(admin.ModelAdmin):
     list_display = ("chave", "descricao", "atualizado_em")
     search_fields = ("chave", "descricao")
-
-# Register your models here.

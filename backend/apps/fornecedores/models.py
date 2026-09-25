@@ -54,5 +54,3 @@ class FornecedorUsuario(TimeStampedModel):
 
     def __str__(self):
         return f"{self.user.get_username()} - {self.fornecedor}"
-
-# Create your models here.

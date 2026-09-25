@@ -98,5 +98,3 @@ class OpcaoResposta(TimeStampedModel):
 
     def __str__(self):
         return self.rotulo
-
-# Create your models here.

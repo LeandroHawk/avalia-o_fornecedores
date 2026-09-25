@@ -1,0 +1,13 @@
+[tool.ruff]
+line-length = 140
+target-version = "py313"
+extend-exclude = [
+  ".venv",
+  "node_modules",
+  "static/tabler",
+  "staticfiles",
+]
+
+[tool.ruff.lint]
+select = ["E", "F"]
+ignore = ["E501"]

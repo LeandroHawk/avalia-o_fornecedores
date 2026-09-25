@@ -2,8 +2,6 @@ from django import forms
 from django.core.validators import RegexValidator
 
 from backend.apps.fornecedores.models import Fornecedor
-from .models import Devolucao, Resposta
-
 
 UF_CHOICES = [("", "UF")] + [(uf, uf) for uf in [
     "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS",
@@ -42,15 +40,3 @@ class FornecedorCadastroForm(forms.ModelForm):
         self.fields["cnpj"].widget.attrs.setdefault("placeholder", "00.000.000/0000-00")
         self.fields["telefone"].widget.attrs.setdefault("placeholder", "(00) 00000-0000")
         self.fields["site"].widget.attrs.setdefault("placeholder", "https://www.empresa.com.br")
-
-
-class RespostaForm(forms.Form):
-    resposta = forms.ChoiceField(choices=Resposta.Valor.choices, label="Resposta", required=True)
-    observacao = forms.CharField(label="Observacao", required=False, widget=forms.Textarea(attrs={"rows": 3}))
-    justificativa = forms.CharField(label="Justificativa", required=False, widget=forms.Textarea(attrs={"rows": 3}))
-    evidencia = forms.FileField(label="Evidencia", required=False)
-
-
-class DevolucaoForm(forms.Form):
-    motivo = forms.ChoiceField(choices=Devolucao.Motivo.choices, label="Motivo")
-    comentario = forms.CharField(label="Comentario", widget=forms.Textarea(attrs={"rows": 4}))

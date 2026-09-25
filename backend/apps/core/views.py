@@ -5,7 +5,6 @@ from django.db.models import Avg, Count, Q
 from django.shortcuts import render
 from django.utils import timezone
 
-from backend.apps.accounts.utils import is_compras, is_fornecedor
 from backend.apps.avaliacoes.models import Avaliacao
 from backend.apps.fornecedores.security import fornecedores_for_user
 from backend.apps.qualificacoes.models import Qualificacao
@@ -30,8 +29,6 @@ def dashboard(request):
         "vencidas": avaliacoes.filter(fim_vigencia__lt=hoje).count(),
         "media": avaliacoes.aggregate(media=Avg("pontuacao"))["media"],
         "qualificacoes": Qualificacao.objects.filter(fornecedor__in=fornecedores).values("status").annotate(total=Count("id")),
-        "is_fornecedor": is_fornecedor(request.user),
-        "is_compras": is_compras(request.user),
     }
     return render(request, "core/dashboard.html", contexto)
 

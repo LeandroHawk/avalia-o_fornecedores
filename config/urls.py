@@ -31,12 +31,6 @@ urlpatterns = [
     path("pendencias/", core_views.central_pendencias, name="pendencias"),
     path("avaliacoes/", avaliacao_views.avaliacao_list, name="avaliacao_list"),
     path("avaliacoes/<int:pk>/", avaliacao_views.avaliacao_detail, name="avaliacao_detail"),
-    path("avaliacoes/<int:pk>/questoes/<int:questao_id>/", avaliacao_views.responder_questao, name="responder_questao"),
-    path("avaliacoes/<int:pk>/enviar/", avaliacao_views.enviar, name="avaliacao_enviar"),
-    path("avaliacoes/<int:pk>/iniciar-analise/", avaliacao_views.iniciar_analise_view, name="avaliacao_iniciar_analise"),
-    path("avaliacoes/<int:pk>/devolver/", avaliacao_views.devolver, name="avaliacao_devolver"),
-    path("avaliacoes/<int:pk>/iniciar-correcao/", avaliacao_views.iniciar_correcao_view, name="avaliacao_iniciar_correcao"),
-    path("avaliacoes/<int:pk>/finalizar/", avaliacao_views.finalizar, name="avaliacao_finalizar"),
     path("evidencias/<int:pk>/download/", avaliacao_views.evidencia_download, name="evidencia_download"),
     path("api/v1/", include(api.router.urls)),
 ]

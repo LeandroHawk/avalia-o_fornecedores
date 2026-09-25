@@ -33,5 +33,3 @@ class Configuracao(TimeStampedModel):
     def get_value(cls, chave, default=None):
         obj = cls.objects.filter(chave=chave).only("valor").first()
         return obj.valor if obj else default
-
-# Create your models here.

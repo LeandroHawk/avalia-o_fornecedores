@@ -38,5 +38,3 @@ class DevolucaoAdmin(admin.ModelAdmin):
 class HistoricoAvaliacaoAdmin(admin.ModelAdmin):
     list_display = ("avaliacao", "acao", "status_origem", "status_destino", "usuario", "criado_em")
     list_filter = ("acao", "status_destino")
-
-# Register your models here.
