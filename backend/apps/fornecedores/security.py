@@ -15,8 +15,4 @@ def user_can_access_fornecedor(user, fornecedor):
 def fornecedores_for_user(user):
     from backend.apps.fornecedores.models import Fornecedor
 
-    if is_admin(user) or is_compras(user):
-        return Fornecedor.objects.all()
-    if is_fornecedor(user) and hasattr(user, "fornecedor_vinculo"):
-        return Fornecedor.objects.filter(id=user.fornecedor_vinculo.fornecedor_id)
-    return Fornecedor.objects.none()
+    return Fornecedor.objects.visible_to_user(user)

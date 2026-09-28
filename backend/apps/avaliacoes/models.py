@@ -15,13 +15,24 @@ def evidencia_upload_to(instance, filename):
     return f"evidencias/{instance.resposta.avaliacao_id}/{uuid.uuid4().hex}{ext}"
 
 
+class AvaliacaoQuerySet(models.QuerySet):
+    def visible_to_user(self, user):
+        return self.filter(fornecedor__in=Fornecedor.objects.visible_to_user(user))
+
+    def with_list_relations(self):
+        return self.select_related("fornecedor", "questionario_versao", "questionario_versao__questionario")
+
+    def with_detail_relations(self):
+        return self.select_related("fornecedor", "questionario_versao")
+
+
 class Avaliacao(TimeStampedModel):
     class Status(models.TextChoices):
         RASCUNHO = "RASCUNHO", "Rascunho"
         ENVIADA = "ENVIADA", "Enviada para Compras"
-        EM_ANALISE = "EM_ANALISE", "Em Analise"
+        EM_ANALISE = "EM_ANALISE", "Em Análise"
         DEVOLVIDA = "DEVOLVIDA", "Devolvida"
-        EM_CORRECAO = "EM_CORRECAO", "Em Correcao"
+        EM_CORRECAO = "EM_CORRECAO", "Em Correção"
         FINALIZADA = "FINALIZADA", "Finalizada"
 
     fornecedor = models.ForeignKey(Fornecedor, on_delete=models.PROTECT, related_name="avaliacoes")
@@ -35,6 +46,8 @@ class Avaliacao(TimeStampedModel):
     fim_vigencia = models.DateField(null=True, blank=True)
     enviada_em = models.DateTimeField(null=True, blank=True)
     finalizada_em = models.DateTimeField(null=True, blank=True)
+
+    objects = AvaliacaoQuerySet.as_manager()
 
     class Meta:
         ordering = ["-criado_em"]
@@ -51,8 +64,8 @@ class Avaliacao(TimeStampedModel):
 class Resposta(TimeStampedModel):
     class Valor(models.TextChoices):
         SIM = "SIM", "Sim"
-        NAO = "NAO", "Nao"
-        NA = "NA", "Nao se aplica"
+        NAO = "NAO", "Não"
+        NA = "NA", "Não se aplica"
 
     avaliacao = models.ForeignKey(Avaliacao, on_delete=models.CASCADE, related_name="respostas")
     questao = models.ForeignKey(Questao, on_delete=models.PROTECT, related_name="respostas")
@@ -69,7 +82,7 @@ class Resposta(TimeStampedModel):
 
     def clean(self):
         if self.questao.exige_justificativa_se_nao and self.resposta == self.Valor.NAO and not self.justificativa.strip():
-            raise ValidationError({"justificativa": "Informe a justificativa para respostas Nao."})
+            raise ValidationError({"justificativa": "Informe a justificativa para respostas Não."})
 
     def __str__(self):
         return f"{self.avaliacao} - {self.questao_id}"
@@ -94,10 +107,10 @@ class Evidencia(TimeStampedModel):
 
 class Devolucao(TimeStampedModel):
     class Motivo(models.TextChoices):
-        EVIDENCIA_INSUFICIENTE = "EVIDENCIA_INSUFICIENTE", "Evidencia insuficiente"
-        DOCUMENTO_INVALIDO = "DOCUMENTO_INVALIDO", "Documento invalido"
+        EVIDENCIA_INSUFICIENTE = "EVIDENCIA_INSUFICIENTE", "Evidência insuficiente"
+        DOCUMENTO_INVALIDO = "DOCUMENTO_INVALIDO", "Documento inválido"
         JUSTIFICATIVA_INSUFICIENTE = "JUSTIFICATIVA_INSUFICIENTE", "Justificativa insuficiente"
-        INFORMACAO_INCOMPLETA = "INFORMACAO_INCOMPLETA", "Informacao incompleta"
+        INFORMACAO_INCOMPLETA = "INFORMACAO_INCOMPLETA", "Informação incompleta"
         RESPOSTA_INCORRETA = "RESPOSTA_INCORRETA", "Resposta incorreta"
         OUTRO = "OUTRO", "Outro"
 

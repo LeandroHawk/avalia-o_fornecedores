@@ -18,19 +18,13 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import include, path
 
-from backend.apps import api
-from backend.apps.avaliacoes import views as avaliacao_views
-from backend.apps.core import views as core_views
+from backend.apps.accounts.controllers import AppLoginView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("", core_views.home, name="home"),
-    path("login/", auth_views.LoginView.as_view(template_name="registration/login.html"), name="login"),
+    path("login/", AppLoginView.as_view(), name="login"),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
-    path("dashboard/", core_views.dashboard, name="dashboard"),
-    path("pendencias/", core_views.central_pendencias, name="pendencias"),
-    path("avaliacoes/", avaliacao_views.avaliacao_list, name="avaliacao_list"),
-    path("avaliacoes/<int:pk>/", avaliacao_views.avaliacao_detail, name="avaliacao_detail"),
-    path("evidencias/<int:pk>/download/", avaliacao_views.evidencia_download, name="evidencia_download"),
-    path("api/v1/", include(api.router.urls)),
+    path("", include("backend.apps.core.urls")),
+    path("", include("backend.apps.avaliacoes.urls")),
+    path("api/v1/", include("backend.apps.api.urls")),
 ]

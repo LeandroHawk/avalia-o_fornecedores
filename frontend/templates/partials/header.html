@@ -2,10 +2,10 @@
 <header class="navbar navbar-expand-md app-header d-print-none">
   <div class="container-fluid px-3 px-lg-4">
     <a class="navbar-brand app-brand" href="{% url 'dashboard' %}">
-      <img src="{% static 'img/logotipo-cesari-color.png' %}" alt="CESARI" class="app-logo">
+      <img src="{% static 'img/logotipo-cesari-color.svg' %}" alt="CESARI" class="app-logo">
       <span>
-        <strong>Avaliacao de fornecedores</strong>
-        <small>{% if request.user.is_authenticated and request.user.profile.role == "COMPRAS" %}Gestao de homologacao, Compras{% else %}Portal do fornecedor{% endif %}</small>
+        <strong>Avaliação de fornecedores</strong>
+        <small>{% if request.user.is_authenticated and request.user.profile.role == "COMPRAS" %}Gestão de homologação, Compras{% else %}Portal do fornecedor{% endif %}</small>
       </span>
     </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Abrir menu">
@@ -14,16 +14,42 @@
     <div class="collapse navbar-collapse" id="navbar-menu">
       <div class="ms-auto d-flex flex-column flex-md-row gap-2 py-2 py-md-0">
         {% if request.user.is_authenticated %}
-          <div class="btn-group" role="group" aria-label="Visoes">
-            <a class="btn btn-outline-primary {% if request.user.profile.role == 'FORNECEDOR' %}active{% endif %}" href="{% url 'avaliacao_list' %}">Fornecedor</a>
-            <a class="btn btn-outline-primary {% if request.user.profile.role == 'COMPRAS' or request.user.is_superuser %}active{% endif %}" href="{% url 'avaliacao_list' %}">Compras</a>
+          {% with role=request.user.profile.role %}
+          <a class="btn btn-outline-primary {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
+            <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-layout-dashboard"></use></svg>
+            Dashboard
+          </a>
+          <div class="btn-group" role="group" aria-label="Visões">
+            {% if role == "FORNECEDOR" or role == "ADMINISTRADOR" or request.user.is_superuser %}
+              <a class="btn btn-outline-primary {% if role == 'FORNECEDOR' and request.resolver_match.url_name == 'avaliacao_list' %}active{% endif %}" href="{% url 'avaliacao_list' %}">
+                <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-building-store"></use></svg>
+                Fornecedor
+              </a>
+            {% endif %}
+            {% if role == "COMPRAS" or role == "ADMINISTRADOR" or request.user.is_superuser %}
+              <a class="btn btn-outline-primary {% if request.resolver_match.url_name == 'avaliacao_list' and role != 'FORNECEDOR' %}active{% endif %}" href="{% url 'avaliacao_list' %}">
+                <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-clipboard-check"></use></svg>
+                Compras
+              </a>
+            {% endif %}
           </div>
-          <a class="btn btn-outline-primary" href="{% url 'pendencias' %}">Pendencias</a>
-          {% if request.user.is_staff %}<a class="btn btn-outline-primary" href="/admin/">Admin</a>{% endif %}
-          <form method="post" action="{% url 'logout' %}">
+          <a class="btn btn-outline-primary {% if request.resolver_match.url_name == 'pendencias' %}active{% endif %}" href="{% url 'pendencias' %}">
+            <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-bell"></use></svg>
+            Pendências
+          </a>
+          {% if role == "ADMINISTRADOR" or request.user.is_superuser %}
+            <a class="btn btn-outline-primary" href="/admin/">
+              <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-settings"></use></svg>
+              Admin
+            </a>
+          {% endif %}
+          <form class="logout-form" method="post" action="{% url 'logout' %}">
             {% csrf_token %}
-            <button class="btn btn-outline-secondary w-100" type="submit">Sair</button>
+            <button class="btn logout-door-btn" type="submit" aria-label="Sair" title="Sair">
+              <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-logout"></use></svg>
+            </button>
           </form>
+          {% endwith %}
         {% else %}
           <a class="btn btn-primary" href="{% url 'login' %}">Entrar</a>
         {% endif %}

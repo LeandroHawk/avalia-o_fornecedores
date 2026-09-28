@@ -1,24 +1,31 @@
 {% extends "base.html" %}
-{% block titulo %}Compras - Avaliacoes{% endblock %}
+{% load static %}
+{% block titulo %}Compras - Avaliações{% endblock %}
 {% block conteudo %}
 <div class="container-xl py-4">
-  <div class="metric-strip">
-    <div><strong>{{ avaliacoes|length }}</strong><span>Fornecedores</span></div>
-    <div><strong>{{ em_analise|default:0 }}</strong><span>Em analise</span></div>
-    <div><strong>{{ ajustes|default:0 }}</strong><span>Ajustes solicitados</span></div>
-    <div><strong>{{ homologados|default:0 }}</strong><span>Homologados</span></div>
-    <div><strong>{{ reprovados|default:0 }}</strong><span>Reprovados</span></div>
+  <div class="page-header d-print-none">
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <div class="page-pretitle">Homologação</div>
+        <h1 class="page-title">Avaliações de fornecedores</h1>
+      </div>
+    </div>
   </div>
 
   <div class="toolbar-line">
-    <input class="form-control search-input" type="search" placeholder="Buscar por razao social ou CNPJ" aria-label="Buscar">
-    <div class="filter-pills">
-      <span class="active">Todos</span>
-      <span>Convidado</span>
-      <span>Em analise</span>
-      <span>Ajustes solicitados</span>
-      <span>Homologado</span>
-      <span>Reprovado</span>
+    <div class="input-icon toolbar-search">
+      <span class="input-icon-addon">
+        <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-search"></use></svg>
+      </span>
+      <input class="form-control search-input" type="search" placeholder="Buscar por razão social ou CNPJ" aria-label="Buscar">
+    </div>
+    <div class="filter-pills nav-segmented" aria-label="Filtrar por status">
+      <button class="nav-link active" type="button" data-status="todos">Todos</button>
+      <button class="nav-link" type="button" data-status="convidado">Convidado</button>
+      <button class="nav-link" type="button" data-status="em-analise">Em análise</button>
+      <button class="nav-link" type="button" data-status="ajustes">Ajustes solicitados</button>
+      <button class="nav-link" type="button" data-status="aprovado">Aprovado</button>
+      <button class="nav-link" type="button" data-status="reprovado">Reprovado</button>
     </div>
   </div>
 
@@ -30,20 +37,20 @@
             <th>Fornecedor</th>
             <th>Status</th>
             <th>Enviado em</th>
-            <th>Pontuacao</th>
-            <th>Criticos</th>
+            <th>Pontuação</th>
+            {% if can_show_compras_dashboard %}<th>Críticos</th>{% endif %}
             <th>Nota interna</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
         {% for avaliacao in avaliacoes %}
-          <tr>
+          <tr data-status="{{ avaliacao.status_class }}">
             <td>
               <strong>{{ avaliacao.fornecedor.razao_social }}</strong>
               <small>{{ avaliacao.fornecedor.cnpj }}</small>
             </td>
-            <td><span class="status-pill status-{{ avaliacao.status_class }}">{{ avaliacao.display_status }}</span></td>
+            <td><span class="status-indicator status-{{ avaliacao.status_class }}"><i></i>{{ avaliacao.display_status }}</span></td>
             <td>{{ avaliacao.enviada_em|date:"d/m/Y"|default:"-" }}</td>
             <td>
               {% if avaliacao.pontuacao %}
@@ -51,17 +58,21 @@
                 <span class="mini-bar"><i style="width: {{ avaliacao.pontuacao|floatformat:0 }}%"></i></span>
               {% else %}-{% endif %}
             </td>
-            <td>{{ avaliacao.criticos|default:"-" }}</td>
+            {% if can_show_compras_dashboard %}<td>{{ avaliacao.criticos|default:"-" }}</td>{% endif %}
             <td>{{ avaliacao.nota_interna|default:"-" }}</td>
             <td class="text-end">
               <a class="btn btn-outline-primary btn-sm" href="{% url 'avaliacao_detail' avaliacao.pk %}">
+                <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#{% if avaliacao.status == "ENVIADA" or avaliacao.status == "EM_ANALISE" %}ti-zoom-check{% else %}ti-eye{% endif %}"></use></svg>
                 {% if avaliacao.status == "ENVIADA" or avaliacao.status == "EM_ANALISE" %}Analisar{% else %}Ver{% endif %}
               </a>
             </td>
           </tr>
         {% empty %}
-          <tr><td colspan="7" class="text-center text-secondary">Nenhuma avaliacao disponivel.</td></tr>
+          <tr class="table-empty-row"><td colspan="{% if can_show_compras_dashboard %}7{% else %}6{% endif %}" class="text-center text-secondary">Nenhuma avaliação disponível.</td></tr>
         {% endfor %}
+          <tr class="filter-empty-row is-filtered-out">
+            <td colspan="{% if can_show_compras_dashboard %}7{% else %}6{% endif %}" class="text-center text-secondary">Nenhuma avaliação encontrada para este filtro.</td>
+          </tr>
         </tbody>
       </table>
     </div>

@@ -68,6 +68,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'axes.middleware.AxesMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'backend.apps.core.middleware.LoginRequiredMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -217,6 +218,8 @@ LOGGING = {
 
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
+
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="avaliacao-fornecedores@cesari.local")
 
 MAILERS = {
     "default": {

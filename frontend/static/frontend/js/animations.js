@@ -65,6 +65,21 @@
     });
   };
 
+  const animateVerticalProgress = (element) => {
+    if (reduceMotion || element.dataset.animatedVerticalProgress) return;
+
+    const targetHeight = element.style.height;
+    if (!targetHeight) return;
+
+    element.dataset.animatedVerticalProgress = "true";
+    element.style.height = "0%";
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        element.style.height = targetHeight;
+      });
+    });
+  };
+
   const revealElements = () => {
     const selectors = [
       ".app-header",
@@ -73,6 +88,7 @@
       ".toolbar-line",
       ".metric-strip > div",
       ".metric-card",
+      ".dashboard-card",
       ".card:not(.metric-card)",
       ".supplier-nav-item",
       ".analysis-hero",
@@ -125,15 +141,20 @@
 
   const initProgressBars = () => {
     document.querySelectorAll(".progress-bar, .score-track i, .mini-bar i").forEach(animateProgress);
+    document.querySelectorAll(".chart-bar-fill").forEach(animateVerticalProgress);
   };
 
   const initTableTools = () => {
     const searchInput = document.querySelector(".search-input");
     const table = document.querySelector(".table-card table");
-    const pills = [...document.querySelectorAll(".filter-pills span")];
+    const pills = [...document.querySelectorAll(".filter-pills [data-status]")];
     if (!searchInput || !table) return;
 
-    const rows = [...table.querySelectorAll("tbody tr")].filter((row) => row.cells.length > 1);
+    const emptyRow = table.querySelector(".filter-empty-row");
+    const staticEmptyRows = [...table.querySelectorAll(".table-empty-row")];
+    const rows = [...table.querySelectorAll("tbody tr")].filter(
+      (row) => row.cells.length > 1 && !row.classList.contains("filter-empty-row")
+    );
     let activeStatus = "todos";
 
     const normalize = (value) =>
@@ -145,12 +166,22 @@
 
     const applyFilters = () => {
       const term = normalize(searchInput.value);
+      let visibleRows = 0;
       rows.forEach((row) => {
         const rowText = normalize(row.textContent);
-        const status = normalize(row.querySelector(".status-pill")?.textContent || "");
+        const status = row.dataset.status || normalize(row.querySelector(".status-indicator, .status-pill")?.textContent || "");
         const matchesText = !term || rowText.includes(term);
         const matchesStatus = activeStatus === "todos" || status === activeStatus;
-        row.classList.toggle("is-filtered-out", !(matchesText && matchesStatus));
+        const isVisible = matchesText && matchesStatus;
+        row.classList.toggle("is-filtered-out", !isVisible);
+        if (isVisible) visibleRows += 1;
+      });
+      if (emptyRow) {
+        const showingInitialEmptyState = rows.length === 0 && !term && activeStatus === "todos";
+        emptyRow.classList.toggle("is-filtered-out", visibleRows > 0 || showingInitialEmptyState);
+      }
+      staticEmptyRows.forEach((row) => {
+        row.classList.toggle("is-filtered-out", Boolean(term) || activeStatus !== "todos");
       });
     };
 
@@ -159,7 +190,7 @@
       pill.addEventListener("click", () => {
         pills.forEach((item) => item.classList.remove("active"));
         pill.classList.add("active");
-        activeStatus = normalize(pill.textContent);
+        activeStatus = pill.dataset.status || normalize(pill.textContent);
         applyFilters();
       });
     });

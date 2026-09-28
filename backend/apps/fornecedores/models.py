@@ -1,7 +1,19 @@
 from django.conf import settings
 from django.db import models
 
+from backend.apps.accounts.utils import is_admin, is_compras, is_fornecedor
 from backend.apps.core.models import TimeStampedModel
+
+
+class FornecedorQuerySet(models.QuerySet):
+    def visible_to_user(self, user):
+        if not getattr(user, "is_authenticated", False):
+            return self.none()
+        if is_admin(user) or is_compras(user):
+            return self.all()
+        if is_fornecedor(user) and hasattr(user, "fornecedor_vinculo"):
+            return self.filter(id=user.fornecedor_vinculo.fornecedor_id)
+        return self.none()
 
 
 class Fornecedor(TimeStampedModel):
@@ -29,6 +41,8 @@ class Fornecedor(TimeStampedModel):
     qualificacao_atual = models.CharField(max_length=40, blank=True)
     pontuacao_atual = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
     validade_qualificacao = models.DateField(null=True, blank=True)
+
+    objects = FornecedorQuerySet.as_manager()
 
     class Meta:
         ordering = ["razao_social"]

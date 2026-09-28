@@ -5,16 +5,15 @@
 }
 
 html.app-motion-ready body {
-  opacity: 0;
+  opacity: 1;
 }
 
 html.app-motion-loaded body {
   opacity: 1;
-  transition: opacity 260ms ease;
 }
 
 .app-header {
-  transition: box-shadow var(--motion-fast) ease, border-color var(--motion-fast) ease, transform var(--motion-fast) ease;
+  transition: box-shadow var(--motion-fast) ease, border-color var(--motion-fast) ease;
 }
 
 .app-header.is-scrolled {
@@ -23,20 +22,17 @@ html.app-motion-loaded body {
 }
 
 .app-reveal {
-  opacity: 0;
-  transform: translateY(14px);
+  opacity: 1;
+  transform: none;
   transition:
-    opacity var(--motion-normal) var(--motion-ease),
-    transform var(--motion-normal) var(--motion-ease),
     box-shadow var(--motion-fast) ease,
     border-color var(--motion-fast) ease;
   transition-delay: var(--motion-delay, 0ms);
-  will-change: opacity, transform;
 }
 
 .app-reveal.is-visible {
   opacity: 1;
-  transform: translateY(0);
+  transform: none;
 }
 
 .card,
@@ -46,7 +42,6 @@ html.app-motion-loaded body {
 .metric-strip,
 .login-shell {
   transition:
-    transform var(--motion-fast) ease,
     box-shadow var(--motion-fast) ease,
     border-color var(--motion-fast) ease;
 }
@@ -58,23 +53,13 @@ html.app-motion-loaded body {
 .login-shell:hover {
   border-color: rgba(53, 76, 140, .32);
   box-shadow: 0 14px 30px rgba(15, 32, 64, .08);
-  transform: translateY(-1px);
 }
 
 .btn {
   transition:
-    transform var(--motion-fast) ease,
     box-shadow var(--motion-fast) ease,
     background-color var(--motion-fast) ease,
     border-color var(--motion-fast) ease;
-}
-
-.btn:hover {
-  transform: translateY(-1px);
-}
-
-.btn:active {
-  transform: translateY(0);
 }
 
 .btn.is-submitting {
@@ -99,13 +84,7 @@ html.app-motion-loaded body {
 .form-select {
   transition:
     border-color var(--motion-fast) ease,
-    box-shadow var(--motion-fast) ease,
-    transform var(--motion-fast) ease;
-}
-
-.form-control:focus,
-.form-select:focus {
-  transform: translateY(-1px);
+    box-shadow var(--motion-fast) ease;
 }
 
 .table tbody tr {
@@ -120,23 +99,24 @@ html.app-motion-loaded body {
   display: none;
 }
 
-.filter-pills span {
+.filter-pills span,
+.filter-pills button {
   cursor: pointer;
   transition:
     color var(--motion-fast) ease,
     background-color var(--motion-fast) ease,
-    border-color var(--motion-fast) ease,
-    transform var(--motion-fast) ease;
-}
-
-.filter-pills span:hover {
-  transform: translateY(-1px);
+    border-color var(--motion-fast) ease;
 }
 
 .progress-bar,
 .score-track i,
-.mini-bar i {
+.mini-bar i,
+.chart-bar-fill {
   transition: width 900ms var(--motion-ease);
+}
+
+.chart-bar-fill {
+  transition-property: height;
 }
 
 .login-brand-panel {
@@ -144,15 +124,7 @@ html.app-motion-loaded body {
 }
 
 .login-brand-panel::before {
-  content: "";
-  position: absolute;
-  inset: -40%;
-  z-index: 0;
-  background:
-    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, .18), transparent 22%),
-    radial-gradient(circle at 72% 64%, rgba(129, 157, 220, .22), transparent 28%);
-  animation: app-soft-shift 12s ease-in-out infinite alternate;
-  pointer-events: none;
+  display: none;
 }
 
 .login-brand-content,
@@ -163,16 +135,6 @@ html.app-motion-loaded body {
 @keyframes app-spin {
   to {
     transform: rotate(360deg);
-  }
-}
-
-@keyframes app-soft-shift {
-  from {
-    transform: translate3d(-1.5%, -1%, 0) scale(1);
-  }
-
-  to {
-    transform: translate3d(1.5%, 1%, 0) scale(1.04);
   }
 }
 

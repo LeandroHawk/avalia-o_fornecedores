@@ -4,11 +4,18 @@ from django.db import models
 from backend.apps.core.models import TimeStampedModel
 
 
+class NotificacaoQuerySet(models.QuerySet):
+    def for_user(self, user):
+        if not getattr(user, "is_authenticated", False):
+            return self.none()
+        return self.filter(usuario=user)
+
+
 class Notificacao(TimeStampedModel):
     class Tipo(models.TextChoices):
-        AVALIACAO_DISPONIVEL = "AVALIACAO_DISPONIVEL", "Avaliacao disponivel"
-        AVALIACAO_DEVOLVIDA = "AVALIACAO_DEVOLVIDA", "Avaliacao devolvida"
-        AVALIACAO_APROVADA = "AVALIACAO_APROVADA", "Avaliacao aprovada"
+        AVALIACAO_DISPONIVEL = "AVALIACAO_DISPONIVEL", "Avaliação disponível"
+        AVALIACAO_DEVOLVIDA = "AVALIACAO_DEVOLVIDA", "Avaliação devolvida"
+        AVALIACAO_APROVADA = "AVALIACAO_APROVADA", "Avaliação aprovada"
         VENCIMENTO = "VENCIMENTO", "Vencimento"
 
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="notificacoes")
@@ -17,6 +24,8 @@ class Notificacao(TimeStampedModel):
     mensagem = models.TextField()
     lida_em = models.DateTimeField(null=True, blank=True)
     url = models.CharField(max_length=255, blank=True)
+
+    objects = NotificacaoQuerySet.as_manager()
 
     class Meta:
         ordering = ["-criado_em"]

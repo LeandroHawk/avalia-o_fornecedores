@@ -32,11 +32,16 @@ class FornecedorCadastroForm(forms.ModelForm):
             "cargo_responsavel",
         ]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, require_all=False, **kwargs):
         super().__init__(*args, **kwargs)
         for name, field in self.fields.items():
+            field.required = require_all
             css = "form-select" if name == "estado" else "form-control"
             field.widget.attrs.setdefault("class", css)
+            if require_all:
+                field.widget.attrs["required"] = "required"
+            else:
+                field.widget.attrs.pop("required", None)
         self.fields["cnpj"].widget.attrs.setdefault("placeholder", "00.000.000/0000-00")
         self.fields["telefone"].widget.attrs.setdefault("placeholder", "(00) 00000-0000")
         self.fields["site"].widget.attrs.setdefault("placeholder", "https://www.empresa.com.br")

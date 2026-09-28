@@ -6,10 +6,17 @@ from django.db import models
 from backend.apps.core.models import TimeStampedModel
 
 
+class QuestionarioQuerySet(models.QuerySet):
+    def active_with_versions(self):
+        return self.filter(ativo=True).prefetch_related("versoes")
+
+
 class Questionario(TimeStampedModel):
     nome = models.CharField(max_length=140)
     descricao = models.TextField(blank=True)
     ativo = models.BooleanField(default=True)
+
+    objects = QuestionarioQuerySet.as_manager()
 
     class Meta:
         ordering = ["nome"]
@@ -55,9 +62,9 @@ class Categoria(TimeStampedModel):
 
 class Questao(TimeStampedModel):
     class Tipo(models.TextChoices):
-        SIM_NAO = "SIM_NAO", "Sim ou Nao"
+        SIM_NAO = "SIM_NAO", "Sim ou Não"
         TEXTO = "TEXTO", "Texto"
-        MULTIPLA_ESCOLHA = "MULTIPLA_ESCOLHA", "Multipla escolha"
+        MULTIPLA_ESCOLHA = "MULTIPLA_ESCOLHA", "Múltipla escolha"
         ESCALA_0_5 = "ESCALA_0_5", "Escala de 0 a 5"
         ARQUIVO = "ARQUIVO", "Arquivo"
 
