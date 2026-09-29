@@ -66,9 +66,11 @@ def _build_chart_context(avaliacoes):
             count = sum(1 for avaliacao in avaliacoes if avaliacao.pontuacao is not None and start <= Decimal(avaliacao.pontuacao) <= end)
         score_counts.append({"label": label, "count": count})
     max_score_count = max((item["count"] for item in score_counts), default=0)
+    axis_max = max(max_score_count, 3)
     return {
         "status_chart": status_chart,
         "status_pie_style": f"conic-gradient({', '.join(pie_segments)})" if pie_segments else "conic-gradient(#e3e8f0 0deg 360deg)",
+        "score_axis_ticks": [axis_max, round(axis_max * Decimal("0.67"), 1), round(axis_max * Decimal("0.33"), 1), 0],
         "score_histogram": [
             {
                 **item,
@@ -117,7 +119,7 @@ def build_dashboard_context(user):
 def list_pendencias(user):
     hoje = timezone.localdate()
     vencendo = hoje + timedelta(days=30)
-    return (
+    avaliacoes = list(
         Avaliacao.objects.visible_to_user(user)
         .filter(
             Q(status__in=[Avaliacao.Status.ENVIADA, Avaliacao.Status.DEVOLVIDA, Avaliacao.Status.EM_CORRECAO])
@@ -125,3 +127,17 @@ def list_pendencias(user):
         )
         .with_detail_relations()
     )
+    for avaliacao in avaliacoes:
+        if avaliacao.status in {Avaliacao.Status.DEVOLVIDA, Avaliacao.Status.EM_CORRECAO}:
+            avaliacao.pending_status_class = "ajustes"
+            avaliacao.pending_status_label = "Ajustes solicitados"
+        elif avaliacao.fim_vigencia and avaliacao.fim_vigencia < hoje:
+            avaliacao.pending_status_class = "vencida"
+            avaliacao.pending_status_label = "Vencida"
+        elif avaliacao.fim_vigencia and avaliacao.fim_vigencia <= vencendo:
+            avaliacao.pending_status_class = "vencendo"
+            avaliacao.pending_status_label = "Vencendo"
+        else:
+            avaliacao.pending_status_class = "em-analise"
+            avaliacao.pending_status_label = "Em análise"
+    return avaliacoes

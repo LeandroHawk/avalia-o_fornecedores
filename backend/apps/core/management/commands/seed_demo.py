@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
@@ -7,9 +8,10 @@ from django.db import transaction
 from django.utils import timezone
 
 from backend.apps.accounts.models import UserProfile
-from backend.apps.avaliacoes.models import Avaliacao, Resposta
+from backend.apps.avaliacoes.models import Avaliacao, Devolucao, Resposta
 from backend.apps.core.models import Configuracao
 from backend.apps.fornecedores.models import Fornecedor, FornecedorUsuario
+from backend.apps.qualificacoes.models import Qualificacao
 from backend.apps.questionarios.models import Categoria, OpcaoResposta, Questao, Questionario, QuestionarioVersao
 
 
@@ -71,11 +73,92 @@ SECTIONS = [
 ]
 
 
-SUPPLIERS = [
-    ("Metalúrgica Horizonte Ltda", "12.345.678/0001-90", "FINALIZADA", "100.00", "4.2"),
-    ("TransLog Soluções em Transporte", "45.221.908/0001-33", "ENVIADA", "100.00", ""),
-    ("Embalagens Sul Brasil Ltda", "08.774.120/0001-57", "FINALIZADA", "92.00", "2.3"),
-    ("Química Aurora S.A.", "98.765.432/0001-10", "RASCUNHO", None, ""),
+DEMO_SUPPLIER_NAMES = [
+    "Metalurgica Horizonte Ltda",
+    "TransLog Solucoes em Transporte",
+    "Embalagens Sul Brasil Ltda",
+    "Quimica Aurora S.A.",
+    "Alfa Manutencao Industrial",
+    "Bravo Equipamentos Portuarios",
+    "Ciclo Ambiental Servicos",
+    "Delta Pecas Tecnicas",
+    "Eixo Forte Transportes",
+    "Fluxo Logistica Integrada",
+    "Gama Automacao Industrial",
+    "HidroVale Saneamento",
+    "Inova EPIs e Uniformes",
+    "Jato Limpeza Tecnica",
+    "Kappa Engenharia",
+    "Litoral Soldas Especiais",
+    "Matriz Componentes",
+    "Navega Sistemas",
+    "Omega Paletes e Embalagens",
+    "Polo Energia",
+    "Quartz Manutencao Predial",
+    "Rota Fria Refrigeracao",
+    "Sigma Ferramentas",
+    "Terra Verde Residuos",
+    "Uniao Locacoes",
+    "Vetor Caldeiraria",
+    "W3 Telecom",
+    "Xisto Minerais",
+    "Yara Alimentacao Corporativa",
+    "Zeta Pintura Industrial",
+    "Acesso Controle e Portaria",
+    "Base Forte Concretos",
+    "Carga Certa Armazens",
+    "Domo Seguranca Eletronica",
+    "Estrela Usinagem",
+    "Fenix Transportes Pesados",
+    "Granito Obras Civis",
+    "Horus Consultoria Ambiental",
+    "Icaro Tecnologia",
+    "Jund Log Armazens Gerais",
+    "Kairos Treinamentos",
+    "Lume Energia Solar",
+    "Mobi Fleet Gestao",
+    "Norte Sul Borrachas",
+    "Orion Software",
+    "Prisma Laboratorios",
+    "Quality Service Facilities",
+    "Raio Suprimentos",
+    "Saturno Guindastes",
+    "Trilha Comercio Atacadista",
+]
+
+STATUS_BY_SLOT = {
+    0: Avaliacao.Status.RASCUNHO,
+    1: Avaliacao.Status.FINALIZADA,
+    2: Avaliacao.Status.FINALIZADA,
+    3: Avaliacao.Status.ENVIADA,
+    4: Avaliacao.Status.EM_ANALISE,
+    5: Avaliacao.Status.DEVOLVIDA,
+    6: Avaliacao.Status.EM_CORRECAO,
+    7: Avaliacao.Status.FINALIZADA,
+    8: Avaliacao.Status.ENVIADA,
+    9: Avaliacao.Status.FINALIZADA,
+}
+
+FINALIZED_SCORES = [
+    Decimal("99.00"),
+    Decimal("97.50"),
+    Decimal("95.00"),
+    Decimal("92.00"),
+    Decimal("88.00"),
+    Decimal("83.00"),
+    Decimal("74.00"),
+    Decimal("58.00"),
+]
+
+CITIES = [
+    ("Cubatao", "SP"),
+    ("Santos", "SP"),
+    ("Sao Paulo", "SP"),
+    ("Curitiba", "PR"),
+    ("Campinas", "SP"),
+    ("Joinville", "SC"),
+    ("Rio de Janeiro", "RJ"),
+    ("Belo Horizonte", "MG"),
 ]
 
 
@@ -100,6 +183,59 @@ class Command(BaseCommand):
         user.profile.role = role
         user.profile.save(update_fields=["role", "atualizado_em"])
         return user
+
+    def _demo_cnpj(self, idx):
+        legacy = {
+            1: "12.345.678/0001-90",
+            2: "45.221.908/0001-33",
+            3: "08.774.120/0001-57",
+            4: "98.765.432/0001-10",
+        }
+        if idx in legacy:
+            return legacy[idx]
+        return f"10.{idx:03d}.{(idx * 137) % 1000:03d}/0001-{idx % 100:02d}"
+
+    def _qualificacao_for_score(self, score):
+        if score is None:
+            return ""
+        if score >= Decimal("95.00"):
+            return Qualificacao.Status.QUALIFICADO
+        if score < Decimal("60.00"):
+            return Qualificacao.Status.NAO_QUALIFICADO
+        return Qualificacao.Status.RESSALVAS
+
+    def _validity_window(self, idx, today):
+        start = today - timedelta(days=30 + (idx * 9) % 240)
+        if idx % 6 == 0:
+            end = today - timedelta(days=idx % 20 + 1)
+        elif idx % 5 == 0:
+            end = today + timedelta(days=idx % 25 + 1)
+        else:
+            end = today + timedelta(days=45 + (idx * 11) % 220)
+        return start, end
+
+    def _answer_for_question(self, questao, idx, score):
+        if questao.tipo == Questao.Tipo.ESCALA_0_5:
+            if score is None:
+                return str((idx % 5) + 1)
+            if score >= Decimal("95.00"):
+                return "5"
+            if score >= Decimal("85.00"):
+                return "4"
+            if score >= Decimal("60.00"):
+                return "3"
+            return "2"
+        if questao.tipo == Questao.Tipo.MULTIPLA_ESCOLHA:
+            options = ["Ate R$ 1M", "R$ 1M a R$ 5M", "R$ 5M a R$ 20M", "Acima de R$ 20M"]
+            stored = list(questao.opcoes.filter(ativa=True).order_by("ordem").values_list("valor", flat=True))
+            return stored[(idx - 1) % len(stored)] if stored else options[(idx - 1) % len(options)]
+        if questao.tipo == Questao.Tipo.ARQUIVO:
+            return Resposta.Valor.SIM
+        if questao.critica and score is not None and score < Decimal("70.00"):
+            return Resposta.Valor.NAO
+        if idx % 13 == 0 and not questao.critica:
+            return Resposta.Valor.NA
+        return Resposta.Valor.SIM
 
     @transaction.atomic
     def handle(self, *args, **options):
@@ -129,6 +265,8 @@ class Command(BaseCommand):
             defaults={"titulo": "Layout Rev1", "publicado": True, "ativo": True},
         )
 
+        Devolucao.objects.filter(avaliacao__questionario_versao=versao).delete()
+        Qualificacao.objects.filter(avaliacao__questionario_versao=versao).delete()
         Resposta.objects.filter(avaliacao__questionario_versao=versao).delete()
         OpcaoResposta.objects.filter(questao__categoria__versao=versao).delete()
         Questao.objects.filter(categoria__versao=versao).delete()
@@ -156,9 +294,22 @@ class Command(BaseCommand):
                     for idx, option in enumerate(["Até R$ 1M", "R$ 1M a R$ 5M", "R$ 5M a R$ 20M", "Acima de R$ 20M"], start=1):
                         OpcaoResposta.objects.create(questao=questao, valor=option, rotulo=option, pontuacao=Decimal(idx), ordem=idx, ativa=True)
 
-        for idx, (razao, cnpj, status, score, nota) in enumerate(SUPPLIERS, start=1):
+        today = timezone.localdate()
+        for idx, razao in enumerate(DEMO_SUPPLIER_NAMES, start=1):
+            status = STATUS_BY_SLOT[idx % 10]
+            score = FINALIZED_SCORES[(idx - 1) % len(FINALIZED_SCORES)] if status == Avaliacao.Status.FINALIZADA else None
+            qualificacao = self._qualificacao_for_score(score)
+            inicio_vigencia, fim_vigencia = (
+                self._validity_window(idx, today) if status == Avaliacao.Status.FINALIZADA else (None, None)
+            )
+            nota_interna = "5"
+            if score is not None:
+                nota_interna = str(max(1, min(5, round(score / Decimal("20.00")))))
+            elif status in {Avaliacao.Status.EM_ANALISE, Avaliacao.Status.DEVOLVIDA, Avaliacao.Status.EM_CORRECAO}:
+                nota_interna = str((idx % 5) + 1)
+            cidade, estado = CITIES[(idx - 1) % len(CITIES)]
             fornecedor, _ = Fornecedor.objects.update_or_create(
-                cnpj=cnpj,
+                cnpj=self._demo_cnpj(idx),
                 defaults={
                     "razao_social": razao,
                     "nome_fantasia": razao.split()[0],
@@ -166,14 +317,16 @@ class Command(BaseCommand):
                     "inscricao_municipal": f"IM-{idx:04d}",
                     "inscricao_estadual": f"IE-{idx:04d}",
                     "endereco": f"Rua Corporativa, {100 + idx}",
-                    "cidade": "Curitiba" if idx == 2 else "Cubatão",
-                    "estado": "PR" if idx == 2 else "SP",
+                    "cidade": cidade,
+                    "estado": estado,
                     "telefone": f"(13) 3000-00{idx:02d}",
                     "site": f"https://fornecedor{idx}.example.com",
                     "quantidade_funcionarios": 80 + idx * 25,
-                    "responsavel": "Responsável Comercial",
+                    "responsavel": "Responsavel Comercial",
                     "cargo_responsavel": "Gerente",
                     "pontuacao_atual": score,
+                    "qualificacao_atual": qualificacao,
+                    "validade_qualificacao": fim_vigencia,
                 },
             )
             avaliacao, _ = Avaliacao.objects.update_or_create(
@@ -182,10 +335,13 @@ class Command(BaseCommand):
                 periodo="2026",
                 defaults={
                     "responsavel": fornecedor_user if idx == 2 else compras,
-                    "status": getattr(Avaliacao.Status, status),
+                    "status": status,
                     "pontuacao": score,
-                    "qualificacao": "QUALIFICADO" if score and Decimal(score) >= 95 else ("NAO_QUALIFICADO" if score else ""),
-                    "enviada_em": timezone.now() if status != "RASCUNHO" else None,
+                    "qualificacao": qualificacao,
+                    "inicio_vigencia": inicio_vigencia,
+                    "fim_vigencia": fim_vigencia,
+                    "enviada_em": timezone.now() - timedelta(days=idx % 20) if status != Avaliacao.Status.RASCUNHO else None,
+                    "finalizada_em": timezone.now() - timedelta(days=idx % 15) if status == Avaliacao.Status.FINALIZADA else None,
                 },
             )
             if idx == 2:
@@ -193,21 +349,52 @@ class Command(BaseCommand):
                     user=fornecedor_user,
                     defaults={"fornecedor": fornecedor, "principal": True, "ativo": True},
                 )
-            if status != "RASCUNHO":
+            if status != Avaliacao.Status.RASCUNHO:
                 for questao in Questao.objects.filter(categoria__versao=versao, ativa=True, uso_interno_compras=False):
-                    valor = "5" if questao.tipo == Questao.Tipo.ESCALA_0_5 else Resposta.Valor.SIM
-                    if questao.tipo == Questao.Tipo.MULTIPLA_ESCOLHA:
-                        valor = "R$ 5M a R$ 20M"
-                    Resposta.objects.update_or_create(avaliacao=avaliacao, questao=questao, defaults={"resposta": valor, "usuario": compras})
-                if nota:
+                    valor = self._answer_for_question(questao, idx, score)
+                    observacao = "Resposta criada para simulacao de telas e graficos."
+                    if valor == Resposta.Valor.NAO:
+                        observacao = "Ponto de atencao criado para validar analise critica."
+                    Resposta.objects.update_or_create(
+                        avaliacao=avaliacao,
+                        questao=questao,
+                        defaults={"resposta": valor, "observacao": observacao, "usuario": compras},
+                    )
+                if status in {Avaliacao.Status.EM_ANALISE, Avaliacao.Status.DEVOLVIDA, Avaliacao.Status.EM_CORRECAO, Avaliacao.Status.FINALIZADA}:
                     for questao in Questao.objects.filter(categoria__versao=versao, ativa=True, uso_interno_compras=True):
-                        Resposta.objects.update_or_create(avaliacao=avaliacao, questao=questao, defaults={"resposta": str(round(float(nota))), "usuario": compras})
+                        Resposta.objects.update_or_create(avaliacao=avaliacao, questao=questao, defaults={"resposta": nota_interna, "usuario": compras})
+                if status in {Avaliacao.Status.DEVOLVIDA, Avaliacao.Status.EM_CORRECAO}:
+                    Devolucao.objects.create(
+                        avaliacao=avaliacao,
+                        motivo=Devolucao.Motivo.INFORMACAO_INCOMPLETA,
+                        comentario="Dados de simulacao: revisar evidencias e informacoes cadastrais.",
+                        usuario=compras,
+                    )
+                if status == Avaliacao.Status.FINALIZADA:
+                    Qualificacao.objects.update_or_create(
+                        avaliacao=avaliacao,
+                        defaults={
+                            "fornecedor": fornecedor,
+                            "status": qualificacao,
+                            "pontuacao": score,
+                            "inicio_vigencia": inicio_vigencia,
+                            "fim_vigencia": fim_vigencia,
+                            "definida_por": compras,
+                        },
+                    )
+                    if score < Decimal("95.00"):
+                        Devolucao.objects.create(
+                            avaliacao=avaliacao,
+                            motivo=Devolucao.Motivo.RESPOSTA_INCORRETA,
+                            comentario="Parecer de simulacao: fornecedor finalizado abaixo do corte de homologacao.",
+                            usuario=compras,
+                        )
 
         Configuracao.objects.update_or_create(chave="VIGENCIA_DIAS", defaults={"valor": {"dias": 365}, "descricao": "Duração da vigência da qualificação em dias."})
         Configuracao.objects.update_or_create(chave="UPLOAD_EXTENSOES_PERMITIDAS", defaults={"valor": {"extensoes": ["pdf", "jpg", "jpeg", "png", "docx", "xlsx"]}})
         Configuracao.objects.update_or_create(chave="UPLOAD_MAX_BYTES", defaults={"valor": {"bytes": 10485760}})
 
-        msg = "Seed concluído. Usuários: admin, compras, fornecedor."
+        msg = f"Seed concluido com {len(DEMO_SUPPLIER_NAMES)} fornecedores de demonstracao. Usuarios: admin, compras, fornecedor."
         if not os.environ.get("SEED_DEFAULT_PASSWORD"):
             msg += " Defina SEED_DEFAULT_PASSWORD antes do seed para criar senha inicial."
         self.stdout.write(self.style.SUCCESS(msg))

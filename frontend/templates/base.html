@@ -18,9 +18,12 @@
     {% include "partials/messages.html" %}
     {% block conteudo %}{% endblock %}
   </main>
-  {% include "partials/footer.html" %}
   <script src="{% static 'tabler/js/tabler.min.js' %}"></script>
-  <script src="{% static 'frontend/js/animations.js' %}"></script>
+  <script src="{% static 'vendor/chartjs/chart.umd.js' %}"></script>
+  <script src="{% static 'frontend/js/charts.js' %}"></script>
+  <script src="{% static 'frontend/js/tables.js' %}"></script>
+  <script src="{% static 'frontend/js/forms.js' %}"></script>
+  <script src="{% static 'frontend/js/app.js' %}"></script>
   {% block scripts %}{% endblock %}
 </body>
 </html>

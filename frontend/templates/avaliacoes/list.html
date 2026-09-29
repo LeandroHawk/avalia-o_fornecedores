@@ -12,12 +12,35 @@
     </div>
   </div>
 
+  <section class="operation-strip" aria-label="Resumo das avaliações">
+    <article>
+      <span>Total de fornecedores</span>
+      <strong>{{ total_fornecedores }}</strong>
+    </article>
+    <article>
+      <span>Em análise</span>
+      <strong>{{ em_analise }}</strong>
+    </article>
+    <article>
+      <span>Ajustes</span>
+      <strong>{{ ajustes }}</strong>
+    </article>
+    <article>
+      <span>Aprovados</span>
+      <strong>{{ homologados }}</strong>
+    </article>
+    <article>
+      <span>Reprovados</span>
+      <strong>{{ reprovados }}</strong>
+    </article>
+  </section>
+
   <div class="toolbar-line">
     <div class="input-icon toolbar-search">
       <span class="input-icon-addon">
         <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-search"></use></svg>
       </span>
-      <input class="form-control search-input" type="search" placeholder="Buscar por razão social ou CNPJ" aria-label="Buscar">
+      <input class="form-control search-input" type="search" placeholder="Buscar por razão social ou CNPJ" aria-label="Buscar" data-table-search>
     </div>
     <div class="filter-pills nav-segmented" aria-label="Filtrar por status">
       <button class="nav-link active" type="button" data-status="todos">Todos</button>
@@ -27,19 +50,24 @@
       <button class="nav-link" type="button" data-status="aprovado">Aprovado</button>
       <button class="nav-link" type="button" data-status="reprovado">Reprovado</button>
     </div>
+    <button class="btn btn-outline-secondary table-clear-filters" type="button" data-table-clear>
+      <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-x"></use></svg>
+      Limpar
+    </button>
+    <span class="table-result-count" data-table-count aria-live="polite"></span>
   </div>
 
   <div class="card table-card">
     <div class="table-responsive">
-      <table class="table table-vcenter">
+      <table class="table table-vcenter" data-table-enhanced data-table-param-prefix="avaliacoes">
         <thead>
           <tr>
-            <th>Fornecedor</th>
-            <th>Status</th>
-            <th>Enviado em</th>
-            <th>Pontuação</th>
-            {% if can_show_compras_dashboard %}<th>Críticos</th>{% endif %}
-            <th>Nota interna</th>
+            <th><button class="table-sort-button" type="button" data-sort="text">Fornecedor</button></th>
+            <th><button class="table-sort-button" type="button" data-sort="text">Status</button></th>
+            <th><button class="table-sort-button" type="button" data-sort="date">Enviado em</button></th>
+            <th><button class="table-sort-button" type="button" data-sort="number">Pontuação</button></th>
+            {% if can_show_compras_dashboard %}<th><button class="table-sort-button" type="button" data-sort="number">Críticos</button></th>{% endif %}
+            <th><button class="table-sort-button" type="button" data-sort="text">Nota interna</button></th>
             <th></th>
           </tr>
         </thead>
@@ -71,7 +99,7 @@
           <tr class="table-empty-row"><td colspan="{% if can_show_compras_dashboard %}7{% else %}6{% endif %}" class="text-center text-secondary">Nenhuma avaliação disponível.</td></tr>
         {% endfor %}
           <tr class="filter-empty-row is-filtered-out">
-            <td colspan="{% if can_show_compras_dashboard %}7{% else %}6{% endif %}" class="text-center text-secondary">Nenhuma avaliação encontrada para este filtro.</td>
+            <td colspan="{% if can_show_compras_dashboard %}7{% else %}6{% endif %}" class="text-center text-secondary" data-filter-empty-message>Nenhuma avaliação encontrada para este filtro.</td>
           </tr>
         </tbody>
       </table>

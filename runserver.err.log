@@ -4,3 +4,14 @@ Watching for file changes with StatReloader
 INFO 2026-09-28 12:13:04,136 django.utils.autoreload: Watching for file changes with StatReloader
 [28/Sep/2026 12:13:04] "GET / HTTP/1.1" 200 3636
 [28/Sep/2026 12:13:04,951] - Broken pipe from ('127.0.0.1', 20937)
+C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\config\settings.py changed, reloading.
+INFO 2026-09-28 14:15:50,352 django.utils.autoreload: C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\config\settings.py changed, reloading.
+INFO 2026-09-28 14:15:51,009 axes.apps: AXES: BEGIN version 8.3.1, blocking by ip_address
+Watching for file changes with StatReloader
+INFO 2026-09-28 14:15:51,039 django.utils.autoreload: Watching for file changes with StatReloader
+[28/Sep/2026 16:08:53] "GET /login/ HTTP/1.1" 200 8392
+[28/Sep/2026 16:08:53,499] - Broken pipe from ('127.0.0.1', 48131)
+[28/Sep/2026 16:16:19] "GET /login/ HTTP/1.1" 200 8392
+[28/Sep/2026 16:16:19,187] - Broken pipe from ('127.0.0.1', 28670)
+[28/Sep/2026 16:16:19] "GET / HTTP/1.1" 200 5843
+[28/Sep/2026 16:16:19,244] - Broken pipe from ('127.0.0.1', 28671)

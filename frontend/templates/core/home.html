@@ -1,42 +1,54 @@
 {% extends "base.html" %}
+{% load static %}
 {% block conteudo %}
-<section class="hero-cesari">
-  <div class="container-xl">
-    <p class="text-uppercase fw-bold mb-2">Grupo Cesari</p>
-    <h1 class="display-4 text-white" style="color: #fff !important;">Avaliação de fornecedores com segurança, rastreabilidade e simplicidade.</h1>
-    <p class="lead col-lg-7 mt-3">Centralize questionários, evidências, devoluções, qualificações e vencimentos em um fluxo claro para fornecedores e Compras.</p>
-    <div class="mt-4">
-      <a class="btn btn-light btn-lg" href="{% url 'login' %}">Acessar sistema</a>
-      <a class="btn btn-outline-light btn-lg ms-2" href="{% url 'dashboard' %}">Ver dashboard</a>
+<section class="portal-hero">
+  <div class="portal-hero-copy">
+    <span class="hero-kicker">Sistema BID</span>
+    <h1>Gestão de fornecedores com controle, rastreabilidade e análise executiva.</h1>
+    <p>Uma experiência corporativa para acompanhar homologações, pendências, evidências e decisões de Compras em um fluxo claro.</p>
+    <div class="portal-actions">
+      <a class="btn btn-light btn-lg" href="{% url 'login' %}">
+        <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-shield-check"></use></svg>
+        Acessar sistema
+      </a>
+    </div>
+  </div>
+  <div class="portal-hero-panel" aria-label="Fluxo do portal">
+    <div class="portal-panel-header">
+      <span>Fluxo de homologação</span>
+      <strong>Acompanhamento ponta a ponta</strong>
+    </div>
+    <div class="portal-flow">
+      <span>Cadastro</span>
+      <i></i>
+      <span>Análise</span>
+      <i></i>
+      <span>Decisão</span>
     </div>
   </div>
 </section>
-<section class="container-xl py-5">
-  <div class="row g-4">
-    <div class="col-md-4">
-      <div class="card h-100">
-        <div class="card-body">
-          <h2 class="card-title">Questionários parametrizados</h2>
-          <p class="text-secondary">Versões, categorias, pesos e perguntas ficam no banco, preservando histórico das avaliações.</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="card h-100">
-        <div class="card-body">
-          <h2 class="card-title">Workflow auditável</h2>
-          <p class="text-secondary">Envio, análise, devolução, correção e finalização passam por regras de backend e trilha de auditoria.</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="card h-100">
-        <div class="card-body">
-          <h2 class="card-title">Arquivos protegidos</h2>
-          <p class="text-secondary">Evidências usam validação de extensão, MIME, tamanho, nomes internos seguros e download autorizado.</p>
-        </div>
-      </div>
-    </div>
+
+<section class="portal-section" aria-label="Capacidades principais">
+  <div class="portal-section-heading">
+    <span class="hero-kicker">Frentes de trabalho</span>
+    <h2>Projetado para fornecedores, Compras e administração.</h2>
+  </div>
+  <div class="portal-feature-grid">
+    <article class="home-feature-card">
+      <span class="feature-icon"><svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-list-check"></use></svg></span>
+      <h3>Checklist guiado</h3>
+      <p>Questionários versionados, categorias, pesos e validações server-side para manter consistência.</p>
+    </article>
+    <article class="home-feature-card">
+      <span class="feature-icon"><svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-clipboard-check"></use></svg></span>
+      <h3>Análise de Compras</h3>
+      <p>Leitura das respostas, solicitação de ajustes, parecer técnico e decisão final no mesmo fluxo.</p>
+    </article>
+    <article class="home-feature-card">
+      <span class="feature-icon"><svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-shield-check"></use></svg></span>
+      <h3>Governança</h3>
+      <p>Controle por perfil, auditoria, evidências protegidas e visão executiva para acompanhamento.</p>
+    </article>
   </div>
 </section>
 {% endblock %}

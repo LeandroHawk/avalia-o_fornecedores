@@ -7,16 +7,47 @@
     <div class="page-pretitle">Monitoramento</div>
     <h1 class="page-title">Central de Pendências</h1>
   </div>
+
+  <section class="pending-command">
+    <div>
+      <span class="hero-kicker">Fila de ação</span>
+      <h2>Itens que exigem acompanhamento de Compras ou do fornecedor.</h2>
+    </div>
+    <strong>{{ avaliacoes|length }}</strong>
+  </section>
+
+  <div class="toolbar-line">
+    <div class="input-icon toolbar-search">
+      <span class="input-icon-addon">
+        <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-search"></use></svg>
+      </span>
+      <input class="form-control search-input" type="search" placeholder="Buscar pendência" aria-label="Buscar pendência" data-table-search>
+    </div>
+    <button class="btn btn-outline-secondary table-clear-filters" type="button" data-table-clear>
+      <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-x"></use></svg>
+      Limpar
+    </button>
+    <span class="table-result-count" data-table-count aria-live="polite"></span>
+  </div>
+
   <div class="card table-card">
     <div class="table-responsive">
-      <table class="table table-vcenter card-table">
-        <thead><tr><th>Fornecedor</th><th>Período</th><th>Status</th><th>Vigência</th><th></th></tr></thead>
+      <table class="table table-vcenter card-table" data-table-enhanced data-table-param-prefix="pendencias">
+        <thead>
+          <tr>
+            <th><button class="table-sort-button" type="button" data-sort="text">Fornecedor</button></th>
+            <th><button class="table-sort-button" type="button" data-sort="text">Período</button></th>
+            <th><button class="table-sort-button" type="button" data-sort="text">Status</button></th>
+            <th><button class="table-sort-button" type="button" data-sort="date">Vigência</button></th>
+            <th></th>
+          </tr>
+        </thead>
         <tbody>
         {% for avaliacao in avaliacoes %}
-          <tr>
+          <tr data-status="{{ avaliacao.pending_status_class }}">
             <td><strong>{{ avaliacao.fornecedor }}</strong></td>
             <td>{{ avaliacao.periodo }}</td>
-            <td><span class="status-indicator status-em-analise"><i></i>{{ avaliacao.get_status_display }}</span></td>
+            <td><span class="status-indicator status-{{ avaliacao.pending_status_class }}"><i></i>{{ avaliacao.pending_status_label }}</span></td>
             <td>{{ avaliacao.fim_vigencia|default:"-" }}</td>
             <td class="text-end">
               <a class="btn btn-sm btn-primary" href="{% url 'avaliacao_detail' avaliacao.pk %}">
@@ -26,8 +57,11 @@
             </td>
           </tr>
         {% empty %}
-          <tr><td colspan="5" class="text-center text-secondary">Nenhuma pendência encontrada.</td></tr>
+          <tr class="table-empty-row"><td colspan="5" class="text-center text-secondary">Nenhuma pendência encontrada.</td></tr>
         {% endfor %}
+          <tr class="filter-empty-row is-filtered-out">
+            <td colspan="5" class="text-center text-secondary" data-filter-empty-message>Nenhuma pendência encontrada para este filtro.</td>
+          </tr>
         </tbody>
       </table>
     </div>

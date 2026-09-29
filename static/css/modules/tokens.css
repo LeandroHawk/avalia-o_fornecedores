@@ -1,0 +1,118 @@
+:root {
+  --tblr-primary: #243f88;
+  --tblr-primary-rgb: 36, 63, 136;
+  --app-sidebar-width: 282px;
+  --app-topbar-height: 76px;
+  --cesari-blue: #243f88;
+  --cesari-blue-dark: #18336f;
+  --cesari-blue-soft: #eaf2ff;
+  --cesari-ink: #172033;
+  --cesari-text: #43536c;
+  --cesari-muted: #7b8aa2;
+  --cesari-line: #dce6f2;
+  --cesari-bg: #f4f7fb;
+  --cesari-surface: #ffffff;
+  --cesari-success: #087443;
+  --cesari-danger: #b42318;
+  --cesari-warning: #8a5a00;
+  --cesari-radius: 12px;
+  --cesari-shadow: 0 10px 28px rgba(27, 49, 84, .05);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  scroll-behavior: smooth;
+}
+
+body {
+  overflow-x: hidden;
+  background: var(--cesari-bg);
+  color: var(--cesari-text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+img,
+svg,
+canvas {
+  max-width: 100%;
+}
+
+strong,
+.fw-bold {
+  font-weight: 750;
+}
+
+.text-secondary,
+.text-muted {
+  color: var(--cesari-muted);
+}
+
+.ti-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 38px;
+  border-radius: 10px;
+  font-weight: 750;
+}
+
+.btn-primary {
+  background: var(--cesari-blue);
+  border-color: var(--cesari-blue);
+  color: #fff;
+}
+
+.btn-primary:hover,
+.btn-primary:focus-visible {
+  background: var(--cesari-blue-dark);
+  border-color: var(--cesari-blue-dark);
+  color: #fff;
+}
+
+.btn-outline-primary {
+  background: #fff;
+  border-color: #b9c8df;
+  color: var(--cesari-blue-dark);
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus-visible {
+  background: var(--cesari-blue-soft);
+  border-color: var(--cesari-blue);
+  color: var(--cesari-blue-dark);
+}
+
+@media (max-width: 560px) {
+  :root {
+    --app-topbar-height: 68px;
+  }
+
+  body {
+    font-size: 14px;
+  }
+
+  .btn {
+    min-height: 40px;
+  }
+}

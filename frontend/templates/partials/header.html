@@ -1,59 +1,97 @@
 {% load static %}
-<header class="navbar navbar-expand-md app-header d-print-none">
-  <div class="container-fluid px-3 px-lg-4">
-    <a class="navbar-brand app-brand" href="{% url 'dashboard' %}">
-      <img src="{% static 'img/logotipo-cesari-color.svg' %}" alt="CESARI" class="app-logo">
-      <span>
-        <strong>Avaliação de fornecedores</strong>
-        <small>{% if request.user.is_authenticated and request.user.profile.role == "COMPRAS" %}Gestão de homologação, Compras{% else %}Portal do fornecedor{% endif %}</small>
-      </span>
-    </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Abrir menu">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbar-menu">
-      <div class="ms-auto d-flex flex-column flex-md-row gap-2 py-2 py-md-0">
-        {% if request.user.is_authenticated %}
-          {% with role=request.user.profile.role %}
-          <a class="btn btn-outline-primary {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
-            <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-layout-dashboard"></use></svg>
-            Dashboard
+<header class="app-header {% if not request.user.is_authenticated %}app-header-public{% endif %} d-print-none">
+  {% if request.user.is_authenticated %}
+    <aside class="app-sidebar" aria-label="Navegação principal">
+      <a class="app-sidebar-brand" href="{% url 'dashboard' %}">
+        <img class="app-sidebar-logo-mark" src="{% static 'img/logotipo-cesari-color.svg' %}" alt="CESARI">
+        <span>
+          <strong>Célula de Inovação</strong>
+          <small>Centro de comando da inovação</small>
+        </span>
+      </a>
+
+      <nav class="app-sidebar-nav">
+        <span class="app-sidebar-section">Navegação</span>
+        {% for item in app_navigation_items %}
+          <a class="app-nav-item {% if item.active %}active{% endif %}" href="{{ item.url }}">
+            <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-{{ item.icon }}"></use></svg>
+            <span>{{ item.label }}</span>
           </a>
-          <div class="btn-group" role="group" aria-label="Visões">
-            {% if role == "FORNECEDOR" or role == "ADMINISTRADOR" or request.user.is_superuser %}
-              <a class="btn btn-outline-primary {% if role == 'FORNECEDOR' and request.resolver_match.url_name == 'avaliacao_list' %}active{% endif %}" href="{% url 'avaliacao_list' %}">
-                <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-building-store"></use></svg>
-                Fornecedor
-              </a>
-            {% endif %}
-            {% if role == "COMPRAS" or role == "ADMINISTRADOR" or request.user.is_superuser %}
-              <a class="btn btn-outline-primary {% if request.resolver_match.url_name == 'avaliacao_list' and role != 'FORNECEDOR' %}active{% endif %}" href="{% url 'avaliacao_list' %}">
-                <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-clipboard-check"></use></svg>
-                Compras
-              </a>
-            {% endif %}
-          </div>
-          <a class="btn btn-outline-primary {% if request.resolver_match.url_name == 'pendencias' %}active{% endif %}" href="{% url 'pendencias' %}">
-            <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-bell"></use></svg>
-            Pendências
-          </a>
-          {% if role == "ADMINISTRADOR" or request.user.is_superuser %}
-            <a class="btn btn-outline-primary" href="/admin/">
-              <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-settings"></use></svg>
-              Admin
-            </a>
+        {% endfor %}
+      </nav>
+
+      <div class="app-sidebar-footer">
+        <div class="app-user-card">
+          <span class="app-user-avatar">{{ request.user.first_name|default:request.user.username|first|upper }}</span>
+          <span>
+            <strong>{{ request.user.first_name|default:request.user.username }}</strong>
+            <small>{{ request.user.profile.get_role_display|default:"Usuário" }}</small>
+          </span>
+        </div>
+        <form class="logout-form" method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button class="btn app-logout-btn" type="submit">
+            <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-logout"></use></svg>
+            Sair
+          </button>
+        </form>
+      </div>
+    </aside>
+  {% endif %}
+
+  <div class="app-topbar">
+    {% if request.user.is_authenticated %}
+      <button class="navbar-toggler app-menu-button" type="button" data-bs-toggle="collapse" data-bs-target="#mobile-sidebar" aria-controls="mobile-sidebar" aria-expanded="false" aria-label="Abrir menu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    {% endif %}
+    <div class="app-topbar-title">
+      {% if not request.user.is_authenticated %}
+        <img class="app-topbar-logo" src="{% static 'img/logotipo-cesari-color.svg' %}" alt="CESARI">
+      {% endif %}
+      <strong>{{ app_topbar_title }}</strong>
+      <span class="app-topbar-kicker">{{ app_topbar_subtitle }}</span>
+    </div>
+    {% if request.user.is_authenticated %}
+      <div class="app-topbar-tools">
+        <a class="btn app-icon-button app-notification-button" href="{% url 'pendencias' %}" aria-label="Notificações">
+          <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-bell"></use></svg>
+          {% if app_unread_notifications %}
+            <span class="app-notification-count">{{ app_unread_notifications }}</span>
           {% endif %}
-          <form class="logout-form" method="post" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button class="btn logout-door-btn" type="submit" aria-label="Sair" title="Sair">
-              <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-logout"></use></svg>
-            </button>
-          </form>
-          {% endwith %}
-        {% else %}
-          <a class="btn btn-primary" href="{% url 'login' %}">Entrar</a>
-        {% endif %}
+        </a>
+        <div class="app-profile-pill">
+          <span class="app-user-avatar">{{ request.user.first_name|default:request.user.username|first|upper }}</span>
+          <span>
+            <strong>{{ request.user.first_name|default:request.user.username }}</strong>
+            <small>{{ request.user.profile.get_role_display|default:"Equipe de Inovação" }}</small>
+          </span>
+        </div>
+      </div>
+    {% else %}
+      <a class="btn btn-primary app-topbar-action" href="{% url 'login' %}">Entrar</a>
+    {% endif %}
+  </div>
+
+  {% if request.user.is_authenticated %}
+    <div class="collapse app-mobile-sidebar" id="mobile-sidebar">
+      <div class="app-mobile-sidebar-inner">
+        <a class="app-sidebar-brand" href="{% url 'dashboard' %}">
+          <img class="app-sidebar-logo-mark" src="{% static 'img/logotipo-cesari-color.svg' %}" alt="CESARI">
+          <span>
+            <strong>Célula de Inovação</strong>
+            <small>Centro de comando da inovação</small>
+          </span>
+        </a>
+        <nav class="app-sidebar-nav">
+          {% for item in app_navigation_items %}
+            <a class="app-nav-item {% if item.active %}active{% endif %}" href="{{ item.url }}">
+              <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-{{ item.icon }}"></use></svg>
+              <span>{{ item.label }}</span>
+            </a>
+          {% endfor %}
+        </nav>
       </div>
     </div>
-  </div>
+  {% endif %}
 </header>

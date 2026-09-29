@@ -2,300 +2,48 @@
 {% load static %}
 {% block titulo %}Entrar - CESARI{% endblock %}
 {% block header %}{% endblock %}
-{% block estilos %}
-<style>
-  body {
-    background: #071a3b;
-    -webkit-font-smoothing: antialiased;
-    text-rendering: geometricPrecision;
-  }
-
-  main {
-    min-height: 100vh;
-  }
-
-  .login-screen {
-    position: relative;
-    min-height: 100vh;
-    display: grid;
-    align-items: center;
-    justify-content: center;
-    padding: 32px 20px;
-    overflow: hidden;
-    background:
-      linear-gradient(140deg, rgba(5, 18, 43, .98) 0%, rgba(13, 39, 83, .96) 52%, rgba(38, 68, 130, .92) 100%),
-      #071a3b;
-  }
-
-  .login-screen::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background:
-      linear-gradient(120deg, rgba(255, 255, 255, .09), transparent 34%),
-      linear-gradient(315deg, transparent 58%, rgba(103, 134, 199, .24));
-    opacity: 1;
-  }
-
-  .login-screen::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background:
-      linear-gradient(90deg, rgba(255, 255, 255, .06) 0 1px, transparent 1px 100%),
-      linear-gradient(180deg, rgba(255, 255, 255, .05) 0 1px, transparent 1px 100%);
-    background-size: 72px 72px;
-    opacity: .18;
-  }
-
-  .login-shell {
-    position: relative;
-    z-index: 1;
-    display: grid;
-    grid-template-columns: minmax(280px, 420px) minmax(360px, 460px);
-    width: min(920px, calc(100vw - 40px));
-    min-height: 560px;
-    overflow: hidden;
-    background: #fff;
-    border: 1px solid rgba(214, 223, 238, .92);
-    border-radius: 8px;
-    box-shadow: 0 22px 48px rgba(3, 13, 32, .28);
-    transform: none;
-  }
-
-  .login-brand-panel {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 42px 38px;
-    color: #fff;
-    background:
-      linear-gradient(145deg, #0a1e46 0%, #263f7d 58%, #354c8c 100%);
-  }
-
-  .login-shell:hover {
-    border-color: rgba(214, 223, 238, .92);
-    box-shadow: 0 22px 48px rgba(3, 13, 32, .28);
-    transform: none;
-  }
-
-  .login-brand-panel::before {
-    display: none;
-  }
-
-  .login-brand-panel::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, .10), rgba(255, 255, 255, 0)),
-      linear-gradient(135deg, transparent 0 58%, rgba(255, 255, 255, .07) 58% 100%);
-    pointer-events: none;
-  }
-
-  .login-brand-content,
-  .login-brand-footer {
-    position: relative;
-    z-index: 1;
-  }
-
-  .login-logo-box {
-    width: 214px;
-    padding: 18px;
-    margin-bottom: 42px;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 12px 26px rgba(3, 13, 32, .22);
-  }
-
-  .login-logo-box img {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-
-  .login-brand-panel h1 {
-    margin: 0;
-    color: #fff;
-    font-size: 34px;
-    line-height: 1.1;
-    font-weight: 800;
-  }
-
-  .login-brand-panel p {
-    max-width: 310px;
-    margin: 14px 0 0;
-    color: rgba(255, 255, 255, .82);
-    font-size: 15px;
-    line-height: 1.55;
-  }
-
-  .login-brand-footer {
-    color: rgba(255, 255, 255, .72);
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0;
-  }
-
-  .login-form-panel {
-    display: flex;
-    align-items: center;
-    padding: 52px;
-    background:
-      linear-gradient(180deg, #fff 0%, #fbfcff 100%);
-  }
-
-  .login-form-inner {
-    width: 100%;
-  }
-
-  .login-mobile-logo {
-    display: none;
-    width: 174px;
-    margin: 0 auto 26px;
-  }
-
-  .login-mobile-logo img {
-    width: 100%;
-    height: auto;
-  }
-
-  .login-eyebrow {
-    margin: 0 0 8px;
-    color: var(--cesari-blue);
-    font-size: 12px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-  }
-
-  .login-title {
-    margin: 0 0 8px;
-    color: #07152d;
-    font-size: 28px;
-    line-height: 1.2;
-    font-weight: 800;
-  }
-
-  .login-subtitle {
-    margin: 0 0 30px;
-    color: #66728a;
-    font-size: 14px;
-    line-height: 1.55;
-  }
-
-  .login-form-panel .form-label {
-    color: #263650;
-    font-size: 13px;
-    font-weight: 700;
-  }
-
-  .login-form-panel .form-control {
-    min-height: 46px;
-    border-color: #cdd6e5;
-    border-radius: 6px;
-    color: #101828;
-    background: #fff;
-    box-shadow: inset 0 1px 2px rgba(16, 24, 40, .04);
-  }
-
-  .login-form-panel .form-control:focus {
-    border-color: var(--cesari-blue);
-    box-shadow: 0 0 0 .25rem rgba(53, 76, 140, .16);
-  }
-
-  .login-submit {
-    min-height: 46px;
-    margin-top: 8px;
-    border-radius: 6px;
-    font-weight: 800;
-    box-shadow: 0 10px 20px rgba(53, 76, 140, .24);
-    transform: none;
-  }
-
-  .login-submit:hover {
-    background: #2f447e;
-    border-color: #2f447e;
-    transform: none;
-  }
-
-  @media (max-width: 860px) {
-    .login-shell {
-      grid-template-columns: 1fr;
-      width: min(100%, 460px);
-      min-height: auto;
-    }
-
-    .login-brand-panel {
-      display: none;
-    }
-
-    .login-form-panel {
-      padding: 34px 26px;
-    }
-
-    .login-mobile-logo {
-      display: block;
-    }
-  }
-
-  @media (max-width: 420px) {
-    .login-screen {
-      padding: 18px 12px;
-    }
-
-    .login-form-panel {
-      padding: 28px 18px;
-    }
-
-    .login-title {
-      font-size: 24px;
-    }
-  }
-</style>
-{% endblock %}
 {% block conteudo %}
 <div class="login-screen">
   <section class="login-shell" aria-label="Login Cesari">
-    <aside class="login-brand-panel">
-      <div class="login-brand-content">
-        <div class="login-logo-box">
-          <img src="{% static 'img/logotipo-cesari-color.svg' %}" alt="Cesari">
-        </div>
-        <h1>Avaliação de fornecedores</h1>
-        <p>Ambiente corporativo para acesso seguro ao portal Cesari.</p>
-      </div>
-      <div class="login-brand-footer">CESARI - Portal corporativo</div>
-    </aside>
-
     <div class="login-form-panel">
-      <div class="login-form-inner">
-        <div class="login-mobile-logo">
-          <img src="{% static 'img/logotipo-cesari-color.svg' %}" alt="Cesari">
+      <img class="login-brand-logo" src="{% static 'img/logotipo-cesari-color.svg' %}" alt="Cesari">
+      <h1 class="login-title">Bem-vindo novamente</h1>
+      <p class="login-subtitle">Acesse o centro de comando da avalia&ccedil;&atilde;o de fornecedores do GRUPO CESARI.</p>
+      <form method="post" novalidate>
+        {% csrf_token %}
+        {% if next %}
+          <input type="hidden" name="next" value="{{ next }}">
+        {% endif %}
+        {% if form.errors %}
+          <div class="alert alert-danger login-error">
+            Por favor, entre com um usu&aacute;rio e senha corretos. Note que ambos os campos diferenciam mai&uacute;sculas e min&uacute;sculas.
+          </div>
+        {% endif %}
+        <div class="mb-3">
+          <label class="form-label" for="{{ form.username.id_for_label }}">Usu&aacute;rio</label>
+          <div class="login-field">
+            <svg class="login-field-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0"></path>
+              <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"></path>
+            </svg>
+            <input class="form-control" type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}" autocomplete="username" placeholder="seu.usuario" required>
+          </div>
         </div>
-        <p class="login-eyebrow">Acesso restrito</p>
-        <h1 class="login-title">Acesse sua conta</h1>
-        <p class="login-subtitle">Informe suas credenciais para continuar.</p>
-        <form method="post" novalidate>
-          {% csrf_token %}
-          {% if next %}
-            <input type="hidden" name="next" value="{{ next }}">
-          {% endif %}
-          <div class="mb-3">
-            <label class="form-label" for="{{ form.username.id_for_label }}">Usuário</label>
-            <input class="form-control" type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}" autocomplete="username" required>
+        <div class="mb-3">
+          <label class="form-label" for="{{ form.password.id_for_label }}">Senha</label>
+          <div class="login-field">
+            <svg class="login-field-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 11h14a1 1 0 0 1 1 1v7a1 1 0 0 1 -1 1H5a1 1 0 0 1 -1 -1v-7a1 1 0 0 1 1 -1z"></path>
+              <path d="M8 11V7a4 4 0 0 1 8 0v4"></path>
+            </svg>
+            <input class="form-control" type="password" name="{{ form.password.name }}" id="{{ form.password.id_for_label }}" autocomplete="current-password" placeholder="********" required>
           </div>
-          <div class="mb-3">
-            <label class="form-label" for="{{ form.password.id_for_label }}">Senha</label>
-            <input class="form-control" type="password" name="{{ form.password.name }}" id="{{ form.password.id_for_label }}" autocomplete="current-password" required>
-          </div>
-          {% if form.errors %}
-            <div class="alert alert-danger">Usuário ou senha inválidos.</div>
-          {% endif %}
-          <button class="btn btn-primary w-100 login-submit" type="submit">Entrar</button>
-        </form>
-      </div>
+        </div>
+        <button class="btn btn-primary w-100 login-submit" type="submit">
+          Entrar
+          <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-arrow-right"></use></svg>
+        </button>
+      </form>
     </div>
   </section>
 </div>

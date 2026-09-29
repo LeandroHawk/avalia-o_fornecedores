@@ -7,189 +7,120 @@
     <div class="container-xl">
       <div class="row g-2 align-items-center">
         <div class="col">
-          <div class="page-pretitle">Visão geral</div>
-          <h1 class="page-title">Dashboard</h1>
-        </div>
-        <div class="col-auto ms-auto">
-          <a class="btn btn-primary" href="{% url 'avaliacao_list' %}">
-            <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-list-check"></use></svg>
-            Abrir avaliações
-          </a>
+          <h1 class="page-title">Indicadores</h1>
+          <div class="page-pretitle">Vis&atilde;o anal&iacute;tica das avalia&ccedil;&otilde;es de fornecedores</div>
         </div>
       </div>
     </div>
   </div>
+
   <div class="page-body">
     <div class="container-xl">
-      <section class="executive-grid" aria-label="Resumo executivo">
-        <article class="dashboard-hero-card">
-          <div class="dashboard-hero-content">
-            <div>
-              <span class="hero-kicker">Operação de compras</span>
-              <h2>Painel de homologação</h2>
-              <p>{{ total_avaliacoes }} avaliação(ões) monitorada(s), {{ pendentes }} pendente(s) e {{ homologados }} aprovada(s).</p>
-            </div>
-            <div class="hero-metrics">
+      {% if total_avaliacoes or total_fornecedores %}
+      <section class="reference-dashboard" aria-label="Indicadores do sistema">
+        <div class="reference-metrics">
+          <article class="reference-metric-card">
+            <span class="reference-metric-icon reference-metric-icon-blue">
+              <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-rocket"></use></svg>
+            </span>
+            <strong data-counter data-counter-value="{{ total_fornecedores }}">{{ total_fornecedores }}</strong>
+            <span>Fornecedores cadastrados</span>
+          </article>
+
+          <article class="reference-metric-card">
+            <span class="reference-metric-icon reference-metric-icon-indigo">
+              <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-bulb"></use></svg>
+            </span>
+            <strong data-counter data-counter-value="{{ total_avaliacoes }}">{{ total_avaliacoes }}</strong>
+            <span>Avalia&ccedil;&otilde;es registradas</span>
+          </article>
+
+          <article class="reference-metric-card">
+            <span class="reference-metric-icon reference-metric-icon-green">
+              <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-trending-up"></use></svg>
+            </span>
+            <strong data-counter data-counter-value="{{ taxa_homologacao }}" data-counter-suffix="%">{{ taxa_homologacao }}%</strong>
+            <span>Taxa m&eacute;dia de aprova&ccedil;&atilde;o</span>
+          </article>
+
+          <article class="reference-metric-card">
+            <span class="reference-metric-icon reference-metric-icon-amber">
+              <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-hourglass"></use></svg>
+            </span>
+            <strong data-counter data-counter-value="{{ vencendo }}">{{ vencendo }}</strong>
+            <span>Vencendo em at&eacute; 30 dias</span>
+          </article>
+        </div>
+
+        <div class="innovation-chart-grid">
+          <article class="innovation-chart-card">
+            <header class="innovation-chart-header">
               <div>
-                <span>Total</span>
-                <strong>{{ total_avaliacoes }}</strong>
+                <h2>
+                  <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-chart-donut"></use></svg>
+                  Distribui&ccedil;&atilde;o por status
+                </h2>
               </div>
-              <div>
-                <span>Nota média</span>
-                <strong>{{ media|floatformat:1|default:"-" }}</strong>
-              </div>
-              <div>
-                <span>Pendência</span>
-                <strong>{{ taxa_pendencia }}%</strong>
-              </div>
-            </div>
-            <div class="hero-progress">
-              <span style="width: {{ taxa_homologacao }}%"></span>
-            </div>
-          </div>
-          <div class="hero-mark">
-            <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-layout-dashboard"></use></svg>
-          </div>
-        </article>
-
-        <article class="metric-widget">
-          <div class="widget-topline">
-            <span>Fornecedores</span>
-            <span class="avatar bg-primary-lt text-primary"><svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-building-store"></use></svg></span>
-          </div>
-          <strong>{{ total_fornecedores }}</strong>
-          <p>Cadastro visível no portal</p>
-          <div class="widget-sparkline">
-            <span style="height: 34%"></span><span style="height: 42%"></span><span style="height: 52%"></span><span style="height: 44%"></span><span style="height: 66%"></span><span style="height: 58%"></span><span style="height: 78%"></span><span style="height: 70%"></span>
-          </div>
-        </article>
-
-        <article class="metric-widget gauge-widget">
-          <div class="widget-topline">
-            <span>Homologação</span>
-            <span>{{ homologados }}/{{ total_avaliacoes }}</span>
-          </div>
-          <div class="radial-gauge" style="--value: {{ taxa_homologacao }}%">
-            <span>{{ taxa_homologacao }}%</span>
-          </div>
-          <p>Taxa de avaliações homologadas</p>
-        </article>
-
-        <article class="metric-widget">
-          <div class="widget-topline">
-            <span>Em análise</span>
-            <span class="status-indicator status-em-analise"><i></i>{{ em_analise }}</span>
-          </div>
-          <strong>{{ em_analise }}</strong>
-          <p>Aguardando decisão de Compras</p>
-          <div class="widget-progress"><span style="width: {{ taxa_pendencia }}%"></span></div>
-        </article>
-
-        <article class="metric-widget">
-          <div class="widget-topline">
-            <span>Devolvidas</span>
-            <span class="status-indicator status-ajustes"><i></i>{{ devolvidas }}</span>
-          </div>
-          <strong>{{ devolvidas }}</strong>
-          <p>Com ajustes solicitados</p>
-          <div class="widget-progress warning"><span style="width: {{ taxa_pendencia }}%"></span></div>
-        </article>
-
-        <article class="metric-widget">
-          <div class="widget-topline">
-            <span>Vencimentos</span>
-            <span class="avatar bg-yellow-lt text-warning"><svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-calendar-alert"></use></svg></span>
-          </div>
-          <strong>{{ vencendo }}</strong>
-          <p>{{ vencidas }} avaliação(ões) vencida(s)</p>
-          <a class="widget-link" href="{% url 'pendencias' %}">Abrir pendências</a>
-        </article>
-      </section>
-
-      {% if can_show_compras_dashboard %}
-        <section class="dashboard-grid dashboard-grid-pro" aria-label="Indicadores gráficos de fornecedores">
-          <article class="dashboard-card">
-            <div class="dashboard-card-header">
-              <div>
-                <h2>Distribuição por status</h2>
-                <p>Participação de cada status no total de avaliações.</p>
-              </div>
-              <span class="avatar bg-primary-lt text-primary"><svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-chart-donut"></use></svg></span>
-            </div>
-            <div class="chart-pie-row">
-              <div class="chart-pie" style="background: {{ status_pie_style }};">
-                <span>{{ total_avaliacoes }}</span>
-              </div>
-              <div class="chart-legend">
+            </header>
+            <div class="innovation-chart-body">
+              <div class="innovation-donut chart-shell" data-chart="status-donut" data-total="{{ total_avaliacoes }}" role="img" aria-label="Gr&aacute;fico de distribui&ccedil;&atilde;o por status">
                 {% for item in status_chart %}
-                  <div class="chart-legend-item">
+                  <span class="chart-pie-slice-data" data-label="{{ item.label }}" data-count="{{ item.count }}" data-color="{{ item.color }}"></span>
+                {% endfor %}
+                <canvas aria-hidden="true"></canvas>
+                <div class="chart-empty-state">Sem dados</div>
+              </div>
+              <div class="innovation-legend" aria-label="Legenda por status">
+                {% for item in status_chart %}
+                  <button class="innovation-legend-item" type="button" data-chart-legend data-index="{{ forloop.counter0 }}">
                     <i style="background: {{ item.color }};"></i>
                     <span>{{ item.label }}</span>
                     <strong>{{ item.count }}</strong>
-                    <em>{{ item.percent }}%</em>
-                  </div>
+                  </button>
                 {% endfor %}
               </div>
             </div>
           </article>
 
-          <article class="dashboard-card">
-            <div class="dashboard-card-header">
+          <article class="innovation-chart-card innovation-bars-card">
+            <header class="innovation-chart-header">
               <div>
-                <h2>Fornecedores por pontuação</h2>
-                <p>Histograma das avaliações por faixa de score.</p>
+                <h2>
+                  <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-chart-bar"></use></svg>
+                  Fornecedores por pontua&ccedil;&atilde;o
+                </h2>
               </div>
-              <span class="avatar bg-primary-lt text-primary"><svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-chart-bar"></use></svg></span>
-            </div>
-            <div class="chart-bars" role="img" aria-label="Histograma de fornecedores por faixa de pontuação">
-              {% for item in score_histogram %}
-                <div class="chart-bar-item">
-                  <div class="chart-bar-track">
-                    <span class="chart-bar-fill" style="height: {{ item.height }}%; --bar-width: {{ item.height }}%;"></span>
-                  </div>
-                  <strong>{{ item.count }}</strong>
-                  <small>{{ item.label }}</small>
+            </header>
+            <div class="innovation-chart-body">
+              <div class="innovation-bars chart-shell" data-chart="score-bars" role="img" aria-label="Histograma de fornecedores por faixa de pontua&ccedil;&atilde;o">
+                {% for item in score_histogram %}
+                  <span class="chart-bar-data" data-label="{{ item.label }}" data-count="{{ item.count }}" data-color="#4f80c9"></span>
+                {% endfor %}
+                <canvas aria-hidden="true"></canvas>
+                <div class="chart-empty-state">Sem dados</div>
+                <div class="chart-fallback">
+                  {% for item in score_histogram %}
+                    <span><strong>{{ item.count }}</strong> {{ item.label }}</span>
+                  {% endfor %}
                 </div>
-              {% endfor %}
+              </div>
             </div>
           </article>
+        </div>
+      </section>
+      {% else %}
+        <section class="empty-state" aria-label="Sem dados para indicadores">
+          <span class="empty-state-icon">
+            <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-chart-donut"></use></svg>
+          </span>
+          <h2>Nenhuma avaliação disponível</h2>
+          <p>Os indicadores serão exibidos assim que houver fornecedores e avaliações cadastrados.</p>
+          <a class="btn btn-primary" href="{% url 'avaliacao_list' %}">
+            <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-list-check"></use></svg>
+            Ir para avaliações
+          </a>
         </section>
       {% endif %}
-
-      <div class="row row-cards">
-        <div class="col-md-6">
-          <div class="card h-100 detail-widget">
-            <div class="card-body">
-              <div class="card-heading">
-                <span class="avatar bg-yellow-lt text-warning"><svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-calendar-alert"></use></svg></span>
-                <h2 class="card-title">Vencimentos</h2>
-              </div>
-              <p><span class="status-dot bg-warning"></span> {{ vencendo }} avaliação(ões) vencendo em até 30 dias.</p>
-              <p><span class="status-dot bg-danger"></span> {{ vencidas }} avaliação(ões) vencida(s).</p>
-              <a class="btn btn-outline-primary" href="{% url 'pendencias' %}">
-                <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-bell"></use></svg>
-                Abrir pendências
-              </a>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="card h-100 detail-widget">
-            <div class="card-body">
-              <div class="card-heading">
-                <span class="avatar bg-green-lt text-success"><svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-gauge"></use></svg></span>
-                <h2 class="card-title">Indicadores</h2>
-              </div>
-              <p class="mb-2">Nota média: <strong>{{ media|default:"-" }}</strong></p>
-              {% for item in qualificacoes %}
-                <div class="d-flex justify-content-between border-bottom py-2"><span>{{ item.status }}</span><strong>{{ item.total }}</strong></div>
-              {% empty %}
-                <p class="text-secondary">Ainda não há qualificações finalizadas.</p>
-              {% endfor %}
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </div>

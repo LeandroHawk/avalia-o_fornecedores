@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 {% block titulo %}Avaliação de fornecedores - CESARI{% endblock %}
 {% block conteudo %}
-<form method="post" enctype="multipart/form-data" class="supplier-shell">
+<form method="post" enctype="multipart/form-data" class="supplier-shell" data-evaluation-form>
   {% csrf_token %}
   <aside class="supplier-nav">
-    <a href="#dados" class="supplier-nav-item active"><span>Dados cadastrais</span><strong>{{ dados_preenchidos }}/{{ dados_total }}</strong></a>
+    <a href="#dados" class="supplier-nav-item active" data-section-link><span>Dados cadastrais</span><strong>{{ dados_preenchidos }}/{{ dados_total }}</strong></a>
     {% for grupo in categorias_data %}
-      <a href="#secao-{{ grupo.categoria.id }}" class="supplier-nav-item">
+      <a href="#secao-{{ grupo.categoria.id }}" class="supplier-nav-item" data-section-link>
         <span>{{ grupo.categoria.nome }}</span><strong>{{ grupo.respondidas }}/{{ grupo.total }}</strong>
       </a>
     {% endfor %}
@@ -22,11 +22,12 @@
       </div>
     {% endif %}
 
-    <div class="supplier-card" id="dados">
+    <div class="supplier-card" id="dados" data-section-progress data-section-label="Dados cadastrais" data-done="{{ dados_preenchidos }}" data-total="{{ dados_total }}" {% if dados_preenchidos < dados_total %}data-has-pending="true"{% endif %}>
       <div class="supplier-card-header">
         <h2>Dados cadastrais</h2>
         <span>{{ dados_preenchidos }} de {{ dados_total }} preenchidos</span>
       </div>
+      <div class="section-progress-track" aria-hidden="true"><i style="--section-progress-value: {% widthratio dados_preenchidos dados_total 100 %}%;"></i></div>
       <div class="supplier-card-body">
         <div class="row g-3">
           <div class="col-md-8"><label class="form-label">Razão social</label>{{ cadastro_form.razao_social }}</div>
@@ -47,11 +48,12 @@
     </div>
 
     {% for grupo in categorias_data %}
-      <div class="supplier-card {% if grupo.categoria.nome == 'Uso interno (Compras)' %}internal-card{% endif %}" id="secao-{{ grupo.categoria.id }}">
+      <div class="supplier-card {% if grupo.categoria.nome == 'Uso interno (Compras)' %}internal-card{% endif %}" id="secao-{{ grupo.categoria.id }}" data-section-progress data-section-label="{{ grupo.categoria.nome }}" data-done="{{ grupo.respondidas }}" data-total="{{ grupo.total }}" {% if grupo.respondidas < grupo.total %}data-has-pending="true"{% endif %}>
         <div class="supplier-card-header">
           <h2>{{ grupo.categoria.nome }}</h2>
           <span>{{ grupo.respondidas }} de {{ grupo.total }} respondidas</span>
         </div>
+        <div class="section-progress-track" aria-hidden="true"><i style="--section-progress-value: {{ grupo.percentual }}%;"></i></div>
         {% if grupo.categoria.nome == "Uso interno (Compras)" %}
           <div class="internal-note">Seção de preenchimento exclusivo da equipe de Compras. O fornecedor não responde estes itens.</div>
         {% endif %}
@@ -59,6 +61,7 @@
           <div class="supplier-question">
             <div class="question-copy">
               <strong>{{ item.questao.enunciado }}</strong>
+              {% if can_review and item.questao.critica %}<span class="critical-chip">Crítico</span>{% endif %}
               {% if item.questao.ajuda %}<small>{{ item.questao.ajuda }}</small>{% endif %}
               {% if item.resposta and item.resposta.observacao %}<small>Parecer: {{ item.resposta.observacao }}</small>{% endif %}
               {% if item.resposta %}
@@ -84,10 +87,12 @@
                 </select>
               {% elif item.questao.tipo == "ARQUIVO" %}
                 <input type="hidden" name="q_{{ item.questao.id }}" value="SIM">
-                <label class="btn btn-outline-primary file-button">
+                <label class="btn btn-outline-primary file-button" data-file-control>
                   Anexar arquivo
-                  <input class="visually-hidden" type="file" name="q_{{ item.questao.id }}_file" {% if not item.editable %}disabled{% endif %}>
+                  <input class="visually-hidden" type="file" name="q_{{ item.questao.id }}_file" data-file-input {% if not item.editable %}disabled{% endif %}>
                 </label>
+                <div class="file-selected is-empty" data-file-selected aria-live="polite">Nenhum arquivo selecionado</div>
+                <button class="btn btn-outline-secondary btn-sm file-clear-button is-filtered-out" type="button" data-file-clear>Limpar arquivo</button>
                 {% if item.missing_file %}<span class="badge bg-yellow-lt">Anexo pendente</span>{% endif %}
               {% else %}
                 <div class="btn-group stable-group" role="group">
@@ -95,17 +100,17 @@
                   <label class="btn btn-outline-primary" for="q{{ item.questao.id }}_sim">Sim</label>
                   <input type="radio" class="btn-check" name="q_{{ item.questao.id }}" id="q{{ item.questao.id }}_nao" value="NAO" {% if item.resposta.resposta == "NAO" %}checked{% endif %} {% if not item.editable %}disabled{% endif %}>
                   <label class="btn btn-outline-primary" for="q{{ item.questao.id }}_nao">Não</label>
-                  {% if can_review and item.questao.critica %}<span class="critical-chip">Crítico</span>{% endif %}
                 </div>
               {% endif %}
               {% if can_review and not item.questao.uso_interno_compras %}
-                <div class="adjustment-control">
+                <details class="adjustment-control">
+                  <summary>Solicitar ajuste</summary>
                   <label class="form-check">
                     <input class="form-check-input" type="checkbox" name="ajuste_q_{{ item.questao.id }}">
-                    <span class="form-check-label">Solicitar ajuste</span>
+                    <span class="form-check-label">Marcar este item para ajuste</span>
                   </label>
                   <input class="form-control form-control-sm" type="text" name="motivo_q_{{ item.questao.id }}" placeholder="Motivo do ajuste">
-                </div>
+                </details>
               {% endif %}
             </div>
           </div>
@@ -144,7 +149,7 @@
           <button class="btn btn-primary" type="submit" name="action" value="homologar">Aprovar</button>
           <button class="btn btn-outline-warning" type="submit" name="action" value="solicitar_ajustes">Solicitar ajustes</button>
           <button class="btn btn-outline-danger" type="submit" name="action" value="reprovar">Reprovar</button>
-          <button class="btn btn-primary" type="button" onclick="window.print()">Imprimir ou salvar PDF</button>
+          <button class="btn btn-outline-secondary" type="button" onclick="window.print()">Imprimir ou salvar PDF</button>
         </div>
       </div>
     {% else %}

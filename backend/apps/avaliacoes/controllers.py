@@ -34,18 +34,35 @@ def avaliacao_detail(request, pk):
             )
             if not result["success"]:
                 messages.error(request, result["message"])
-                return render(
-                    request,
-                    "avaliacoes/detail.html",
-                    build_avaliacao_context(request.user, avaliacao, result["cadastro_form"]),
+                context = build_avaliacao_context(request.user, avaliacao, result["cadastro_form"])
+                context.update(
+                    {
+                        "app_topbar_title": avaliacao.fornecedor.razao_social,
+                        "app_topbar_subtitle": "Checklist, evidências e decisão da avaliação",
+                    }
                 )
+                return render(request, "avaliacoes/detail.html", context)
             messages.success(request, result["message"])
             return redirect("avaliacao_detail", pk=avaliacao.pk)
         except (ValidationError, PermissionDenied) as exc:
             messages.error(request, "; ".join(exc.messages) if hasattr(exc, "messages") else str(exc))
-            return render(request, "avaliacoes/detail.html", build_avaliacao_context(request.user, avaliacao))
+            context = build_avaliacao_context(request.user, avaliacao)
+            context.update(
+                {
+                    "app_topbar_title": avaliacao.fornecedor.razao_social,
+                    "app_topbar_subtitle": "Checklist, evidências e decisão da avaliação",
+                }
+            )
+            return render(request, "avaliacoes/detail.html", context)
 
-    return render(request, "avaliacoes/detail.html", build_avaliacao_context(request.user, avaliacao))
+    context = build_avaliacao_context(request.user, avaliacao)
+    context.update(
+        {
+            "app_topbar_title": avaliacao.fornecedor.razao_social,
+            "app_topbar_subtitle": "Checklist, evidências e decisão da avaliação",
+        }
+    )
+    return render(request, "avaliacoes/detail.html", context)
 
 
 def evidencia_download(request, pk):
