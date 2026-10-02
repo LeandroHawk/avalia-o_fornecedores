@@ -58,11 +58,17 @@
           <div class="internal-note">Seção de preenchimento exclusivo da equipe de Compras. O fornecedor não responde estes itens.</div>
         {% endif %}
         {% for item in grupo.questoes %}
-          <div class="supplier-question {% if item.dispensada %}is-dispensed{% endif %}" data-question-row data-base-editable="{{ item.base_editable|yesno:'true,false' }}" {% if item.dispensa_trigger %}data-dispensa-trigger="true"{% endif %} {% if item.dispensada %}data-dispensed="true" hidden style="display: none;"{% endif %}>
+          <div class="supplier-question {% if item.dispensada %}is-dispensed{% endif %} {% if item.ajuste_em_destaque %}has-adjustment{% endif %}" data-question-row data-base-editable="{{ item.base_editable|yesno:'true,false' }}" {% if item.dispensa_trigger %}data-dispensa-trigger="true"{% endif %} {% if item.dispensada %}data-dispensed="true" hidden style="display: none;"{% endif %}>
             <div class="question-copy">
               <strong>{{ item.questao.enunciado }}</strong>
               {% if can_review and item.questao.critica %}<span class="critical-chip">Crítico</span>{% endif %}
               {% if item.questao.ajuda %}<small>{{ item.questao.ajuda }}</small>{% endif %}
+              {% if item.ajuste_em_destaque %}
+                <div class="adjustment-note">
+                  <strong>{% if item.ajuste_respondido %}Ajuste enviado pelo fornecedor{% else %}Ajuste solicitado{% endif %}</strong>
+                  <span>{{ item.ajuste_em_destaque.motivo }}</span>
+                </div>
+              {% endif %}
               {% if item.resposta and item.resposta.observacao %}<small>Parecer: {{ item.resposta.observacao }}</small>{% endif %}
               {% if item.resposta %}
                 {% for evidencia in item.resposta.evidencias.all %}
@@ -114,13 +120,13 @@
                 {% endif %}
               {% endif %}
               {% if can_review and not item.questao.uso_interno_compras %}
-                <details class="adjustment-control">
+                <details class="adjustment-control" {% if item.ajuste_pendente %}open{% endif %}>
                   <summary>Solicitar ajuste</summary>
                   <label class="form-check">
-                    <input class="form-check-input" type="checkbox" name="ajuste_q_{{ item.questao.id }}">
+                    <input class="form-check-input" type="checkbox" name="ajuste_q_{{ item.questao.id }}" {% if item.ajuste_pendente %}checked{% endif %} {% if not can_send_adjustments %}disabled{% endif %}>
                     <span class="form-check-label">Marcar este item para ajuste</span>
                   </label>
-                  <input class="form-control form-control-sm" type="text" name="motivo_q_{{ item.questao.id }}" placeholder="Motivo do ajuste">
+                  <input class="form-control form-control-sm" type="text" name="motivo_q_{{ item.questao.id }}" value="{% if item.ajuste_em_destaque %}{{ item.ajuste_em_destaque.motivo }}{% endif %}" placeholder="Motivo do ajuste" {% if not can_send_adjustments %}disabled{% endif %}>
                 </details>
               {% endif %}
             </div>
@@ -128,6 +134,20 @@
         {% endfor %}
       </div>
     {% endfor %}
+    {% if can_review %}
+      <div class="supplier-card checklist-actions">
+        <div class="supplier-card-header">
+          <h2>Decis&atilde;o de Compras</h2>
+          <span>{{ status_label }}</span>
+        </div>
+        <div class="checklist-actions-body">
+          <button class="btn btn-primary" type="submit" name="action" value="homologar" {% if not compras_pode_decidir %}disabled title="Complete a seÃ§Ã£o Uso interno (Compras) antes de decidir"{% endif %}>Aprovar</button>
+          <button class="btn btn-outline-warning" type="submit" name="action" value="solicitar_ajustes" {% if not can_send_adjustments %}disabled{% endif %}>Enviar ajuste para o fornecedor</button>
+          <button class="btn btn-outline-danger" type="submit" name="action" value="reprovar" {% if not compras_pode_decidir %}disabled title="Complete a seÃ§Ã£o Uso interno (Compras) antes de decidir"{% endif %}>Reprovar</button>
+          <button class="btn btn-outline-secondary" type="button" onclick="window.print()">Imprimir ou salvar PDF</button>
+        </div>
+      </div>
+    {% endif %}
   </section>
 
   <aside class="supplier-progress">
@@ -136,13 +156,13 @@
         <div class="review-score">
           <strong>{{ progresso }}<span>%</span></strong>
           <div class="score-track"><i style="width: {{ progresso }}%"></i><b class="mark-70">70</b><b class="mark-85">85</b></div>
-          <em>{% if apto %}Apto à homologação{% else %}Aguardando avaliação{% endif %}</em>
+          <em>{% if avaliacao.status == "FINALIZADA" %}{{ status_label }}{% elif apto %}Apto à homologação{% else %}Aguardando avaliação{% endif %}</em>
         </div>
         <div class="progress-top">
           <strong>{{ progress_done }} de {{ progress_total }} campos preenchidos</strong>
           <span class="badge bg-primary-lt">{{ progresso }}%</span>
         </div>
-        <p>Nota interna: <strong>{{ avaliacao.pontuacao|default:"aguardando avaliação" }}</strong></p>
+        <p>Pontuação do fornecedor: <strong>{% if tem_pontuacao_fornecedor %}{{ pontuacao_fornecedor|floatformat:0 }}%{% else %}aguardando respostas{% endif %}</strong></p>
         <h3>Por seção</h3>
         {% for grupo in categorias_data %}
           {% if grupo.categoria.nome != "Uso interno (Compras)" %}
@@ -161,12 +181,39 @@
         {% endif %}
         <label class="form-label">Parecer de Compras</label>
         <textarea class="form-control" name="parecer" rows="4" placeholder="Registre o parecer da análise"></textarea>
-        <div class="d-flex flex-wrap gap-2 mt-3">
-          <button class="btn btn-primary" type="submit" name="action" value="homologar" {% if not compras_pode_decidir %}disabled title="Complete a seção Uso interno (Compras) antes de decidir"{% endif %}>Aprovar</button>
-          <button class="btn btn-outline-warning" type="submit" name="action" value="solicitar_ajustes">Solicitar ajustes</button>
-          <button class="btn btn-outline-danger" type="submit" name="action" value="reprovar" {% if not compras_pode_decidir %}disabled title="Complete a seção Uso interno (Compras) antes de decidir"{% endif %}>Reprovar</button>
-          <button class="btn btn-outline-secondary" type="button" onclick="window.print()">Imprimir ou salvar PDF</button>
-        </div>
+      </div>
+      <div class="progress-card process-timeline-card">
+        <h3>Timeline do Processo</h3>
+        {% if timeline_items %}
+          <div class="process-timeline">
+            {% for item in timeline_items %}
+              <div class="timeline-entry">
+                <strong>{{ item.titulo }}</strong>
+                <time>{{ item.quando|date:"d/m/Y H:i" }}</time>
+                <span>{{ item.usuario }}</span>
+                {% if item.comentario %}<p>{{ item.comentario|linebreaksbr }}</p>{% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-secondary">Nenhum evento registrado ainda.</p>
+        {% endif %}
+      </div>
+      <div class="progress-card audit-log-card">
+        <h3>Log de Auditoria</h3>
+        {% if auditoria_logs %}
+          <div class="audit-log-list">
+            {% for log in auditoria_logs %}
+              <div class="audit-log-entry">
+                <strong>{{ log.acao }}</strong>
+                <span>{{ log.resultado }}</span>
+                <small>{{ log.usuario }} - {{ log.quando|date:"d/m/Y H:i" }}</small>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-secondary">Nenhum log registrado ainda.</p>
+        {% endif %}
       </div>
     {% else %}
       <div class="progress-card">

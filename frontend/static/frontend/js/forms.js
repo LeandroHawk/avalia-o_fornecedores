@@ -75,6 +75,10 @@
     question.classList.toggle("is-dispensed", dispensed);
     question.style.display = dispensed ? "none" : "";
     question.querySelectorAll("input, select, textarea, button").forEach((field) => {
+      if (field.closest(".adjustment-control")) {
+        if (dispensed) field.disabled = true;
+        return;
+      }
       if (dispensed) {
         field.disabled = true;
       } else {

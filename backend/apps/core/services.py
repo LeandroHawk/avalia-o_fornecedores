@@ -5,6 +5,7 @@ from django.db.models import Avg, Count, Q
 from django.utils import timezone
 
 from backend.apps.accounts.utils import is_admin, is_compras
+from backend.apps.avaliacoes.display import get_status_class
 from backend.apps.avaliacoes.models import Avaliacao
 from backend.apps.fornecedores.models import Fornecedor
 from backend.apps.qualificacoes.models import Qualificacao
@@ -28,15 +29,7 @@ SCORE_BUCKETS = [
 
 
 def _display_status_class(avaliacao):
-    if avaliacao.status == Avaliacao.Status.RASCUNHO:
-        return "convidado"
-    if avaliacao.status in {Avaliacao.Status.ENVIADA, Avaliacao.Status.EM_ANALISE}:
-        return "em-analise"
-    if avaliacao.status in {Avaliacao.Status.DEVOLVIDA, Avaliacao.Status.EM_CORRECAO}:
-        return "ajustes"
-    if avaliacao.qualificacao == "NAO_QUALIFICADO" or (avaliacao.pontuacao and avaliacao.pontuacao < 95):
-        return "reprovado"
-    return "aprovado"
+    return get_status_class(avaliacao)
 
 
 def _build_chart_context(avaliacoes):

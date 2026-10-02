@@ -81,9 +81,9 @@
             <td><span class="status-indicator status-{{ avaliacao.status_class }}"><i></i>{{ avaliacao.display_status }}</span></td>
             <td>{{ avaliacao.enviada_em|date:"d/m/Y"|default:"-" }}</td>
             <td>
-              {% if avaliacao.pontuacao %}
-                <strong>{{ avaliacao.pontuacao|floatformat:0 }}%</strong>
-                <span class="mini-bar"><i style="width: {{ avaliacao.pontuacao|floatformat:0 }}%"></i></span>
+              {% if avaliacao.tem_pontuacao_exibida %}
+                <strong>{{ avaliacao.pontuacao_exibida|floatformat:0 }}%</strong>
+                <span class="mini-bar"><i style="width: {{ avaliacao.pontuacao_exibida|floatformat:0 }}%"></i></span>
               {% else %}-{% endif %}
             </td>
             {% if can_show_compras_dashboard %}<td>{{ avaliacao.criticos|default:"-" }}</td>{% endif %}

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Avaliacao, Devolucao, Evidencia, HistoricoAvaliacao, Resposta
+from .models import AjusteQuestao, Avaliacao, Devolucao, Evidencia, HistoricoAvaliacao, Resposta
 
 
 class RespostaInline(admin.TabularInline):
@@ -32,6 +32,13 @@ class EvidenciaAdmin(admin.ModelAdmin):
 class DevolucaoAdmin(admin.ModelAdmin):
     list_display = ("avaliacao", "motivo", "usuario", "criado_em")
     list_filter = ("motivo",)
+
+
+@admin.register(AjusteQuestao)
+class AjusteQuestaoAdmin(admin.ModelAdmin):
+    list_display = ("avaliacao", "questao", "status", "solicitado_por", "criado_em")
+    list_filter = ("status",)
+    search_fields = ("avaliacao__fornecedor__razao_social", "questao__enunciado", "motivo")
 
 
 @admin.register(HistoricoAvaliacao)

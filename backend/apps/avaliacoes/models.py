@@ -35,11 +35,16 @@ class Avaliacao(TimeStampedModel):
         EM_CORRECAO = "EM_CORRECAO", "Em Correção"
         FINALIZADA = "FINALIZADA", "Finalizada"
 
+    class DecisaoCompras(models.TextChoices):
+        APROVADA = "APROVADA", "Aprovada"
+        REPROVADA = "REPROVADA", "Reprovada"
+
     fornecedor = models.ForeignKey(Fornecedor, on_delete=models.PROTECT, related_name="avaliacoes")
     questionario_versao = models.ForeignKey(QuestionarioVersao, on_delete=models.PROTECT, related_name="avaliacoes")
     periodo = models.CharField(max_length=60)
     responsavel = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="avaliacoes_responsavel")
     status = models.CharField(max_length=30, choices=Status.choices, default=Status.RASCUNHO, db_index=True)
+    decisao_compras = models.CharField(max_length=20, choices=DecisaoCompras.choices, blank=True, db_index=True)
     pontuacao = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
     qualificacao = models.CharField(max_length=40, blank=True)
     inicio_vigencia = models.DateField(null=True, blank=True)
@@ -121,6 +126,31 @@ class Devolucao(TimeStampedModel):
 
     def __str__(self):
         return f"{self.avaliacao} - {self.get_motivo_display()}"
+
+
+class AjusteQuestao(TimeStampedModel):
+    class Status(models.TextChoices):
+        PENDENTE = "PENDENTE", "Pendente"
+        RESPONDIDO = "RESPONDIDO", "Respondido"
+        RESOLVIDO = "RESOLVIDO", "Resolvido"
+
+    avaliacao = models.ForeignKey(Avaliacao, on_delete=models.CASCADE, related_name="ajustes_questoes")
+    questao = models.ForeignKey(Questao, on_delete=models.PROTECT, related_name="ajustes")
+    motivo = models.TextField()
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDENTE, db_index=True)
+    solicitado_por = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="ajustes_solicitados")
+
+    class Meta:
+        ordering = ["questao__categoria__ordem", "questao__ordem", "criado_em"]
+        constraints = [
+            models.UniqueConstraint(fields=["avaliacao", "questao"], name="uniq_ajuste_avaliacao_questao"),
+        ]
+        indexes = [
+            models.Index(fields=["avaliacao", "status"]),
+        ]
+
+    def __str__(self):
+        return f"{self.avaliacao} - {self.questao_id} - {self.get_status_display()}"
 
 
 class HistoricoAvaliacao(TimeStampedModel):

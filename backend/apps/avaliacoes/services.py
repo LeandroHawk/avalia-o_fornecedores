@@ -13,6 +13,7 @@ from django.db import transaction
 from django.utils import timezone
 
 from backend.apps.accounts.utils import is_admin, is_compras, is_fornecedor
+from backend.apps.auditoria.models import Auditoria
 from backend.apps.auditoria.services import registrar_auditoria
 from backend.apps.core.models import Configuracao
 from backend.apps.fornecedores.models import Fornecedor, FornecedorUsuario
@@ -21,8 +22,9 @@ from backend.apps.notificacoes.models import Notificacao
 from backend.apps.questionarios.models import Categoria, OpcaoResposta, Questao, Questionario, QuestionarioVersao
 from backend.apps.qualificacoes.models import Qualificacao
 
+from .display import get_status_class, get_status_label
 from .forms import FornecedorCadastroForm
-from .models import Avaliacao, Devolucao, Evidencia, HistoricoAvaliacao, Resposta
+from .models import AjusteQuestao, Avaliacao, Devolucao, Evidencia, HistoricoAvaliacao, Resposta
 
 
 ALLOWED_TRANSITIONS = {
@@ -167,14 +169,22 @@ def _get_or_create_fornecedor_vinculo(user):
 
 
 def _get_or_create_default_questionario_versao():
-    versao = (
+    versoes = list(
         QuestionarioVersao.objects.filter(publicado=True, ativo=True, questionario__ativo=True)
         .select_related("questionario")
+        .prefetch_related("categorias__questoes")
         .order_by("-questionario__criado_em", "-numero")
-        .first()
     )
-    if versao:
-        return versao
+    if versoes:
+        def active_question_count(versao):
+            return sum(categoria.questoes.filter(ativa=True).count() for categoria in versao.categorias.all())
+
+        cesari_versions = [
+            versao
+            for versao in versoes
+            if "cesari" in _normalizar_texto(versao.questionario.nome) and active_question_count(versao) > 1
+        ]
+        return max(cesari_versions or versoes, key=lambda versao: (active_question_count(versao), versao.numero, versao.criado_em))
 
     from backend.apps.core.management.commands.seed_demo import SECTIONS
 
@@ -229,12 +239,14 @@ def get_or_create_fornecedor_avaliacao(user):
     if not is_fornecedor(user):
         return None
     vinculo = _get_or_create_fornecedor_vinculo(user)
+    versao = _get_or_create_default_questionario_versao()
 
     avaliacao = Avaliacao.objects.visible_to_user(user).with_detail_relations().order_by("-criado_em").first()
     if avaliacao:
+        if avaliacao.status == Avaliacao.Status.RASCUNHO and avaliacao.questionario_versao_id != versao.id and not avaliacao.respostas.exists():
+            avaliacao.questionario_versao = versao
+            avaliacao.save(update_fields=["questionario_versao", "atualizado_em"])
         return avaliacao
-
-    versao = _get_or_create_default_questionario_versao()
 
     return Avaliacao.objects.create(
         fornecedor=vinculo.fornecedor,
@@ -251,6 +263,22 @@ def build_avaliacao_context(user, avaliacao, cadastro_form=None):
     status_compras_editavel = {Avaliacao.Status.ENVIADA, Avaliacao.Status.EM_ANALISE}
     categorias = avaliacao.questionario_versao.categorias.filter(ativa=True).prefetch_related("questoes__opcoes")
     respostas = {r.questao_id: r for r in avaliacao.respostas.prefetch_related("evidencias")}
+    ajustes_pendentes = {
+        ajuste.questao_id: ajuste
+        for ajuste in avaliacao.ajustes_questoes.select_related("questao").filter(status=AjusteQuestao.Status.PENDENTE)
+    }
+    ajustes_respondidos = {}
+    if can_review and avaliacao.status in {Avaliacao.Status.ENVIADA, Avaliacao.Status.EM_ANALISE}:
+        ajustes_respondidos = {
+            ajuste.questao_id: ajuste
+            for ajuste in avaliacao.ajustes_questoes.select_related("questao").filter(status=AjusteQuestao.Status.RESPONDIDO)
+        }
+    show_only_adjustments_to_supplier = (
+        is_fornecedor(user)
+        and not can_review
+        and avaliacao.status in {Avaliacao.Status.DEVOLVIDA, Avaliacao.Status.EM_CORRECAO}
+        and bool(ajustes_pendentes)
+    )
     categorias_data = []
     total_fornecedor = respondidas_fornecedor = 0
     anexos_pendentes = criticos = 0
@@ -261,6 +289,11 @@ def build_avaliacao_context(user, avaliacao, cadastro_form=None):
         dispensa_ativa = False
         for questao in categoria.questoes.filter(ativa=True):
             if questao.uso_interno_compras and not can_review:
+                continue
+            ajuste_pendente = ajustes_pendentes.get(questao.id)
+            ajuste_respondido = ajustes_respondidos.get(questao.id)
+            ajuste_em_destaque = ajuste_pendente or ajuste_respondido
+            if show_only_adjustments_to_supplier and not ajuste_pendente:
                 continue
             resposta = respostas.get(questao.id)
             dispensada = bool(dispensa_ativa and not questao.uso_interno_compras)
@@ -299,6 +332,9 @@ def build_avaliacao_context(user, avaliacao, cadastro_form=None):
                 {
                     "questao": questao,
                     "resposta": resposta,
+                    "ajuste_pendente": ajuste_pendente,
+                    "ajuste_respondido": ajuste_respondido,
+                    "ajuste_em_destaque": ajuste_em_destaque,
                     "respondida": respondida,
                     "missing_file": missing_file,
                     "editable": base_editable and not dispensada,
@@ -343,25 +379,33 @@ def build_avaliacao_context(user, avaliacao, cadastro_form=None):
     progress_total = total_fornecedor + dados_total
     progress_done = respondidas_fornecedor + dados_preenchidos
     progresso = round((progress_done / progress_total) * 100) if progress_total else 0
+    pontuacao_fornecedor = avaliacao.pontuacao
+    if pontuacao_fornecedor is None and respondidas_fornecedor:
+        pontuacao_fornecedor = calcular_pontuacao(avaliacao)
     respostas_internas_status = get_respostas_internas_status(avaliacao) if can_review else {"total": 0, "respondidas": 0, "pendentes": 0}
     form = cadastro_form or FornecedorCadastroForm(instance=avaliacao.fornecedor)
     can_edit_supplier_answers = (is_fornecedor(user) or is_admin(user)) and avaliacao.status in status_fornecedor_editavel
+    can_send_adjustments = can_review and avaliacao.status in {Avaliacao.Status.ENVIADA, Avaliacao.Status.EM_ANALISE}
     if (is_compras(user) and not is_admin(user)) or (is_fornecedor(user) and not can_edit_supplier_answers):
         for field in form.fields.values():
             field.disabled = True
-    status_label = STATUS_LABELS.get(avaliacao.status, avaliacao.get_status_display())
+    status_label = get_status_label(avaliacao)
     return {
         "avaliacao": avaliacao,
         "cadastro_form": form,
         "categorias_data": categorias_data,
         "can_review": can_review,
         "can_edit_supplier_answers": can_edit_supplier_answers,
+        "can_send_adjustments": can_send_adjustments,
+        "show_only_adjustments_to_supplier": show_only_adjustments_to_supplier,
         "status_label": status_label,
         "dados_total": dados_total,
         "dados_preenchidos": dados_preenchidos,
         "progress_total": progress_total,
         "progress_done": progress_done,
         "progresso": progresso,
+        "pontuacao_fornecedor": pontuacao_fornecedor,
+        "tem_pontuacao_fornecedor": pontuacao_fornecedor is not None,
         "apto": progresso >= 85 and criticos == 0,
         "pendencias": max(progress_total - progress_done, 0),
         "anexos_pendentes": anexos_pendentes,
@@ -370,6 +414,8 @@ def build_avaliacao_context(user, avaliacao, cadastro_form=None):
         "respostas_internas_respondidas": respostas_internas_status["respondidas"],
         "respostas_internas_pendentes": respostas_internas_status["pendentes"],
         "compras_pode_decidir": respostas_internas_status["pendentes"] == 0,
+        "timeline_items": build_timeline_context(avaliacao) if can_review else [],
+        "auditoria_logs": build_auditoria_context(avaliacao) if can_review else [],
     }
 
 
@@ -380,6 +426,10 @@ def get_avaliacao_list_context(user):
         internas = avaliacao.respostas.filter(questao__uso_interno_compras=True, resposta__in=["0", "1", "2", "3", "4", "5"])
         notas = [int(r.resposta) for r in internas]
         avaliacao.nota_interna = round(sum(notas) / len(notas), 1) if notas else ""
+        avaliacao.pontuacao_exibida = avaliacao.pontuacao
+        if avaliacao.pontuacao_exibida is None and avaliacao.respostas.filter(questao__uso_interno_compras=False).exclude(resposta="").exists():
+            avaliacao.pontuacao_exibida = calcular_pontuacao(avaliacao)
+        avaliacao.tem_pontuacao_exibida = avaliacao.pontuacao_exibida is not None
         if avaliacao.status == Avaliacao.Status.RASCUNHO:
             avaliacao.display_status = "Convidado"
             avaliacao.status_class = "convidado"
@@ -395,6 +445,8 @@ def get_avaliacao_list_context(user):
         else:
             avaliacao.display_status = "Aprovado"
             avaliacao.status_class = "aprovado"
+        avaliacao.display_status = "Convidado" if avaliacao.status == Avaliacao.Status.RASCUNHO else get_status_label(avaliacao)
+        avaliacao.status_class = get_status_class(avaliacao)
     status_counts = {key: 0 for key, _label, _color in LIST_STATUS_ORDER}
     for avaliacao in avaliacoes:
         status_counts[avaliacao.status_class] = status_counts.get(avaliacao.status_class, 0) + 1
@@ -414,9 +466,13 @@ def get_avaliacao_list_context(user):
     score_counts = []
     for label, start, end in SCORE_BUCKETS:
         if start is None:
-            count = sum(1 for avaliacao in avaliacoes if avaliacao.pontuacao is None)
+            count = sum(1 for avaliacao in avaliacoes if not avaliacao.tem_pontuacao_exibida)
         else:
-            count = sum(1 for avaliacao in avaliacoes if avaliacao.pontuacao is not None and start <= Decimal(avaliacao.pontuacao) <= end)
+            count = sum(
+                1
+                for avaliacao in avaliacoes
+                if avaliacao.tem_pontuacao_exibida and start <= Decimal(avaliacao.pontuacao_exibida) <= end
+            )
         score_counts.append({"label": label, "count": count})
     max_score_count = max((item["count"] for item in score_counts), default=0)
     score_histogram = [
@@ -587,6 +643,50 @@ def registrar_historico(avaliacao, origem, destino, acao, usuario, comentario=""
         comentario=comentario,
         usuario=usuario,
     )
+
+
+TIMELINE_LABELS = {
+    "ENVIO": "Avaliação enviada",
+    "INICIO_ANALISE": "Análise iniciada",
+    "DEVOLUCAO": "Ajustes enviados ao fornecedor",
+    "INICIO_CORRECAO": "Correção iniciada pelo fornecedor",
+    "FINALIZACAO": "Avaliação aprovada",
+    "REPROVACAO": "Avaliação reprovada",
+}
+
+
+def _format_user(user):
+    if not user:
+        return "Sistema"
+    full_name = user.get_full_name()
+    return full_name or user.get_username()
+
+
+def build_timeline_context(avaliacao):
+    historicos = avaliacao.historico.select_related("usuario").order_by("criado_em")
+    return [
+        {
+            "titulo": TIMELINE_LABELS.get(item.acao, item.acao.replace("_", " ").title()),
+            "acao": item.acao,
+            "usuario": _format_user(item.usuario),
+            "quando": item.criado_em,
+            "comentario": item.comentario,
+        }
+        for item in historicos
+    ]
+
+
+def build_auditoria_context(avaliacao):
+    logs = Auditoria.objects.filter(objeto="Avaliacao", objeto_id=str(avaliacao.id)).select_related("usuario").order_by("-criado_em")[:12]
+    return [
+        {
+            "acao": log.acao,
+            "usuario": _format_user(log.usuario),
+            "quando": log.criado_em,
+            "resultado": log.resultado,
+        }
+        for log in logs
+    ]
 
 
 def validate_respostas_completas(avaliacao):
@@ -796,6 +896,8 @@ def enviar_avaliacao(avaliacao, usuario, request=None):
     assert_transition(avaliacao, destino)
     validate_respostas_completas(avaliacao)
     origem = avaliacao.status
+    if origem in {Avaliacao.Status.DEVOLVIDA, Avaliacao.Status.EM_CORRECAO}:
+        avaliacao.ajustes_questoes.filter(status=AjusteQuestao.Status.PENDENTE).update(status=AjusteQuestao.Status.RESPONDIDO)
     avaliacao.status = destino
     avaliacao.enviada_em = timezone.now()
     avaliacao.save(update_fields=["status", "enviada_em", "atualizado_em"])
@@ -858,6 +960,15 @@ def solicitar_ajustes(avaliacao, usuario, post_data, request=None):
         resposta.observacao = f"Ajuste solicitado: {motivo}"
         resposta.usuario = usuario
         resposta.save(update_fields=["observacao", "usuario", "atualizado_em"])
+        AjusteQuestao.objects.update_or_create(
+            avaliacao=avaliacao,
+            questao=questao,
+            defaults={
+                "motivo": motivo,
+                "status": AjusteQuestao.Status.PENDENTE,
+                "solicitado_por": usuario,
+            },
+        )
         ajustes.append(f"{questao.enunciado[:120]}: {motivo}")
 
     if not ajustes:
@@ -912,6 +1023,7 @@ def finalizar_avaliacao(avaliacao, usuario, request=None):
     fim = hoje + timedelta(days=vigencia_dias())
     origem = avaliacao.status
     avaliacao.status = destino
+    avaliacao.decisao_compras = Avaliacao.DecisaoCompras.APROVADA
     avaliacao.pontuacao = pontuacao
     avaliacao.qualificacao = status_qualificacao
     avaliacao.inicio_vigencia = hoje
@@ -954,9 +1066,10 @@ def reprovar_avaliacao(avaliacao, usuario, comentario, request=None):
 
     origem = avaliacao.status
     avaliacao.status = Avaliacao.Status.FINALIZADA
+    avaliacao.decisao_compras = Avaliacao.DecisaoCompras.REPROVADA
     avaliacao.qualificacao = Qualificacao.Status.NAO_QUALIFICADO
     avaliacao.finalizada_em = timezone.now()
-    avaliacao.save(update_fields=["status", "qualificacao", "finalizada_em", "atualizado_em"])
+    avaliacao.save(update_fields=["status", "decisao_compras", "qualificacao", "finalizada_em", "atualizado_em"])
     Devolucao.objects.create(
         avaliacao=avaliacao,
         motivo=Devolucao.Motivo.RESPOSTA_INCORRETA,

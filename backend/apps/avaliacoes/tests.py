@@ -8,12 +8,13 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from backend.apps.accounts.models import UserProfile
-from backend.apps.avaliacoes.models import Avaliacao, Evidencia, Resposta
+from backend.apps.avaliacoes.models import AjusteQuestao, Avaliacao, Evidencia, Resposta
 from backend.apps.avaliacoes.services import (
     build_avaliacao_context,
     calcular_pontuacao,
     enviar_avaliacao,
     finalizar_avaliacao,
+    get_avaliacao_list_context,
     reprovar_avaliacao,
     salvar_resposta,
     validar_upload,
@@ -72,6 +73,24 @@ class AvaliacaoServiceTests(TestCase):
         salvar_resposta(avaliacao=self.avaliacao, questao=self.questao_1, usuario=self.user_a, resposta=Resposta.Valor.SIM)
         salvar_resposta(avaliacao=self.avaliacao, questao=self.questao_2, usuario=self.user_a, resposta=Resposta.Valor.NAO, justificativa="Nao possui.")
         self.assertEqual(calcular_pontuacao(self.avaliacao), 50)
+
+    def test_compras_ve_pontuacao_calculada_antes_da_finalizacao(self):
+        self.questao_1.exige_evidencia_se_sim = False
+        self.questao_1.save()
+        self.questao_2.exige_evidencia_se_sim = False
+        self.questao_2.save()
+        salvar_resposta(avaliacao=self.avaliacao, questao=self.questao_1, usuario=self.user_a, resposta=Resposta.Valor.SIM)
+        salvar_resposta(avaliacao=self.avaliacao, questao=self.questao_2, usuario=self.user_a, resposta=Resposta.Valor.NAO, justificativa="Nao possui.")
+        self.avaliacao.status = Avaliacao.Status.ENVIADA
+        self.avaliacao.save()
+
+        contexto = build_avaliacao_context(self.compras, self.avaliacao)
+        lista = get_avaliacao_list_context(self.compras)["avaliacoes"]
+
+        self.assertTrue(contexto["tem_pontuacao_fornecedor"])
+        self.assertEqual(contexto["pontuacao_fornecedor"], 50)
+        self.assertTrue(lista[0].tem_pontuacao_exibida)
+        self.assertEqual(lista[0].pontuacao_exibida, 50)
 
     def test_certificacao_sim_dispensa_questoes_subsequentes_no_envio(self):
         self.questao_1.enunciado = "Possui certificação ISO 9001 ou similar vigente?"
@@ -161,6 +180,65 @@ class AvaliacaoServiceTests(TestCase):
         finalizar_avaliacao(self.avaliacao, self.compras)
         self.avaliacao.refresh_from_db()
         self.assertEqual(self.avaliacao.qualificacao, "RESSALVAS")
+
+    def test_aprovacao_exibe_aprovado_mesmo_com_pontuacao_baixa(self):
+        self.questao_1.exige_evidencia_se_sim = False
+        self.questao_1.save()
+        self.questao_2.exige_evidencia_se_sim = False
+        self.questao_2.save()
+        salvar_resposta(avaliacao=self.avaliacao, questao=self.questao_1, usuario=self.user_a, resposta=Resposta.Valor.SIM)
+        salvar_resposta(avaliacao=self.avaliacao, questao=self.questao_2, usuario=self.user_a, resposta=Resposta.Valor.NAO, justificativa="Nao possui.")
+        self.avaliacao.status = Avaliacao.Status.EM_ANALISE
+        self.avaliacao.save()
+
+        finalizar_avaliacao(self.avaliacao, self.compras)
+        self.avaliacao.refresh_from_db()
+
+        self.assertEqual(self.avaliacao.decisao_compras, Avaliacao.DecisaoCompras.APROVADA)
+        self.assertEqual(build_avaliacao_context(self.user_a, self.avaliacao)["status_label"], "Aprovado")
+        lista = get_avaliacao_list_context(self.compras)["avaliacoes"]
+        self.assertEqual(lista[0].display_status, "Aprovado")
+        self.assertEqual(lista[0].status_class, "aprovado")
+
+    def test_reprovacao_exibe_reprovado_para_fornecedor(self):
+        categoria_interna = Categoria.objects.create(versao=self.avaliacao.questionario_versao, nome="Uso interno (Compras)", peso=1)
+        questao_interna = Questao.objects.create(
+            categoria=categoria_interna,
+            enunciado="Prazo de entrega",
+            tipo=Questao.Tipo.ESCALA_0_5,
+            uso_interno_compras=True,
+        )
+        self.avaliacao.status = Avaliacao.Status.EM_ANALISE
+        self.avaliacao.save()
+        salvar_resposta(avaliacao=self.avaliacao, questao=questao_interna, usuario=self.compras, resposta="5")
+
+        reprovar_avaliacao(self.avaliacao, self.compras, "Parecer de reprovação.")
+        self.avaliacao.refresh_from_db()
+
+        self.assertEqual(self.avaliacao.decisao_compras, Avaliacao.DecisaoCompras.REPROVADA)
+        self.assertEqual(build_avaliacao_context(self.user_a, self.avaliacao)["status_label"], "Reprovado")
+
+    def test_reenvio_do_fornecedor_marca_ajustes_como_respondidos(self):
+        self.questao_1.exige_evidencia_se_sim = False
+        self.questao_1.save()
+        self.questao_2.exige_evidencia_se_sim = False
+        self.questao_2.save()
+        salvar_resposta(avaliacao=self.avaliacao, questao=self.questao_1, usuario=self.user_a, resposta=Resposta.Valor.SIM)
+        salvar_resposta(avaliacao=self.avaliacao, questao=self.questao_2, usuario=self.user_a, resposta=Resposta.Valor.SIM)
+        ajuste = AjusteQuestao.objects.create(
+            avaliacao=self.avaliacao,
+            questao=self.questao_1,
+            motivo="Atualizar resposta.",
+            solicitado_por=self.compras,
+        )
+        self.avaliacao.status = Avaliacao.Status.DEVOLVIDA
+        self.avaliacao.save()
+
+        enviar_avaliacao(self.avaliacao, self.user_a)
+        ajuste.refresh_from_db()
+
+        self.assertEqual(ajuste.status, AjusteQuestao.Status.RESPONDIDO)
+        self.assertTrue(self.avaliacao.historico.filter(acao="ENVIO").exists())
 
     def test_finalizacao_bloqueia_uso_interno_incompleto(self):
         categoria_interna = Categoria.objects.create(versao=self.avaliacao.questionario_versao, nome="Uso interno (Compras)", peso=1)
@@ -590,6 +668,130 @@ class AvaliacaoRouteAuthTests(TestCase):
         self.assertContains(response, "Complete Uso interno (Compras)")
         self.assertContains(response, 'value="homologar" disabled')
         self.assertContains(response, 'value="reprovar" disabled')
+
+    def test_compras_envia_ajustes_por_campo_para_fornecedor(self):
+        self.avaliacao.status = Avaliacao.Status.ENVIADA
+        self.avaliacao.save()
+        self.client.force_login(self.compras)
+
+        response = self.client.post(
+            reverse("avaliacao_detail", args=[self.avaliacao.pk]),
+            {
+                "action": "solicitar_ajustes",
+                f"ajuste_q_{self.questao.id}": "on",
+                f"motivo_q_{self.questao.id}": "Atualizar documento anexado.",
+                f"ajuste_q_{self.questao_critica.id}": "on",
+                f"motivo_q_{self.questao_critica.id}": "Revisar resposta crítica.",
+            },
+        )
+
+        self.assertRedirects(response, reverse("avaliacao_detail", args=[self.avaliacao.pk]))
+        self.avaliacao.refresh_from_db()
+        self.assertEqual(self.avaliacao.status, Avaliacao.Status.DEVOLVIDA)
+        self.assertEqual(
+            AjusteQuestao.objects.filter(avaliacao=self.avaliacao, status=AjusteQuestao.Status.PENDENTE).count(),
+            2,
+        )
+        self.assertTrue(self.avaliacao.historico.filter(acao="DEVOLUCAO", comentario__contains="Atualizar documento").exists())
+
+    def test_compras_precisa_marcar_ao_menos_um_ajuste(self):
+        self.avaliacao.status = Avaliacao.Status.ENVIADA
+        self.avaliacao.save()
+        self.client.force_login(self.compras)
+
+        response = self.client.post(reverse("avaliacao_detail", args=[self.avaliacao.pk]), {"action": "solicitar_ajustes"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Selecione ao menos um campo")
+
+    def test_compras_precisa_informar_motivo_do_ajuste(self):
+        self.avaliacao.status = Avaliacao.Status.ENVIADA
+        self.avaliacao.save()
+        self.client.force_login(self.compras)
+
+        response = self.client.post(
+            reverse("avaliacao_detail", args=[self.avaliacao.pk]),
+            {"action": "solicitar_ajustes", f"ajuste_q_{self.questao.id}": "on"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Informe o motivo do ajuste")
+
+    def test_fornecedor_ve_ajuste_destacado_mas_nao_timeline_ou_auditoria(self):
+        self.avaliacao.status = Avaliacao.Status.DEVOLVIDA
+        self.avaliacao.save()
+        AjusteQuestao.objects.create(
+            avaliacao=self.avaliacao,
+            questao=self.questao,
+            motivo="Atualizar documento anexado.",
+            solicitado_por=self.compras,
+        )
+        self.client.force_login(self.user_a)
+
+        response = self.client.get(reverse("avaliacao_detail", args=[self.avaliacao.pk]))
+
+        self.assertContains(response, "Ajuste solicitado")
+        self.assertContains(response, "Atualizar documento anexado.")
+        self.assertContains(response, "has-adjustment")
+        self.assertContains(response, "Possui arquivo?")
+        self.assertNotContains(response, "Pergunta crÃ­tica?")
+        self.assertNotContains(response, "Outras certificaÃ§Ãµes?")
+        self.assertNotContains(response, "Timeline do Processo")
+        self.assertNotContains(response, "Log de Auditoria")
+
+    def test_compras_ve_timeline_log_e_ajustes(self):
+        self.avaliacao.status = Avaliacao.Status.ENVIADA
+        self.avaliacao.save()
+        self.client.force_login(self.compras)
+        self.client.post(
+            reverse("avaliacao_detail", args=[self.avaliacao.pk]),
+            {
+                "action": "solicitar_ajustes",
+                f"ajuste_q_{self.questao.id}": "on",
+                f"motivo_q_{self.questao.id}": "Atualizar documento anexado.",
+            },
+        )
+
+        response = self.client.get(reverse("avaliacao_detail", args=[self.avaliacao.pk]))
+
+        self.assertContains(response, "Timeline do Processo")
+        self.assertContains(response, "Ajustes enviados ao fornecedor")
+        self.assertContains(response, "Log de Auditoria")
+        self.assertContains(response, "DEVOLUCAO")
+        self.assertContains(response, "Atualizar documento anexado.")
+
+    def test_compras_ve_ajuste_respondido_destacado_ao_abrir_pendencia(self):
+        Questao.objects.filter(
+            categoria__versao=self.avaliacao.questionario_versao,
+            uso_interno_compras=False,
+        ).update(exige_evidencia_se_sim=False, exige_justificativa_se_nao=False)
+        for questao in Questao.objects.filter(categoria__versao=self.avaliacao.questionario_versao, uso_interno_compras=False):
+            resposta = "AtÃ© R$ 1M" if questao.tipo == Questao.Tipo.MULTIPLA_ESCOLHA else Resposta.Valor.SIM
+            Resposta.objects.update_or_create(
+                avaliacao=self.avaliacao,
+                questao=questao,
+                defaults={"resposta": resposta, "usuario": self.user_a},
+            )
+        AjusteQuestao.objects.create(
+            avaliacao=self.avaliacao,
+            questao=self.questao,
+            motivo="Atualizar documento anexado.",
+            solicitado_por=self.compras,
+        )
+        self.avaliacao.status = Avaliacao.Status.DEVOLVIDA
+        self.avaliacao.save()
+
+        enviar_avaliacao(self.avaliacao, self.user_a)
+        self.avaliacao.refresh_from_db()
+        self.client.force_login(self.compras)
+
+        pendencias = self.client.get(reverse("pendencias"))
+        response = self.client.get(reverse("avaliacao_detail", args=[self.avaliacao.pk]))
+
+        self.assertContains(pendencias, reverse("avaliacao_detail", args=[self.avaliacao.pk]))
+        self.assertContains(response, "Ajuste enviado pelo fornecedor")
+        self.assertContains(response, "Atualizar documento anexado.")
+        self.assertContains(response, "has-adjustment")
 
     def test_fornecedor_nao_acessa_avaliacao_ou_evidencia_de_outro_fornecedor(self):
         self.client.force_login(self.user_b)
