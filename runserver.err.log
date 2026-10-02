@@ -1,17 +1,456 @@
-INFO 2026-09-28 12:13:03,434 axes.apps: AXES: BEGIN version 8.3.1, blocking by ip_address
-INFO 2026-09-28 12:13:04,051 axes.apps: AXES: BEGIN version 8.3.1, blocking by ip_address
+INFO 2026-10-01 14:17:52,828 axes.apps: AXES: BEGIN version 8.3.1, blocking by ip_address
+INFO 2026-10-01 14:17:53,754 axes.apps: AXES: BEGIN version 8.3.1, blocking by ip_address
 Watching for file changes with StatReloader
-INFO 2026-09-28 12:13:04,136 django.utils.autoreload: Watching for file changes with StatReloader
-[28/Sep/2026 12:13:04] "GET / HTTP/1.1" 200 3636
-[28/Sep/2026 12:13:04,951] - Broken pipe from ('127.0.0.1', 20937)
-C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\config\settings.py changed, reloading.
-INFO 2026-09-28 14:15:50,352 django.utils.autoreload: C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\config\settings.py changed, reloading.
-INFO 2026-09-28 14:15:51,009 axes.apps: AXES: BEGIN version 8.3.1, blocking by ip_address
+INFO 2026-10-01 14:17:53,821 django.utils.autoreload: Watching for file changes with StatReloader
+[01/Oct/2026 14:18:15] "GET /login/ HTTP/1.1" 200 2960
+[01/Oct/2026 14:18:15,920] - Broken pipe from ('127.0.0.1', 17323)
+[01/Oct/2026 14:18:55] "GET /dashboard/ HTTP/1.1" 200 12494
+[01/Oct/2026 14:18:57] "GET /avaliacoes/ HTTP/1.1" 200 5320
+[01/Oct/2026 14:19:00] "GET /avaliacoes/ HTTP/1.1" 200 5320
+[01/Oct/2026 14:19:00] "GET /avaliacoes/ HTTP/1.1" 200 5320
+[01/Oct/2026 14:19:01] "GET /avaliacoes/ HTTP/1.1" 200 5320
+[01/Oct/2026 14:19:01] "GET /avaliacoes/ HTTP/1.1" 200 5320
+[01/Oct/2026 14:19:01] "GET /avaliacoes/ HTTP/1.1" 200 5320
+[01/Oct/2026 14:19:02] "GET /avaliacoes/ HTTP/1.1" 200 5320
+INFO 2026-10-01 14:19:07,194 axes.handlers.database: AXES: Cleaned up 0 expired access attempts from database that were older than 2026-10-01 17:14:07.193897+00:00
+INFO 2026-10-01 14:19:07,196 axes.handlers.database: AXES: Successful logout by {username: "********************", ip_address: "********************", user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36", path_info: "/logout/"}.
+[01/Oct/2026 14:19:07] "POST /logout/ HTTP/1.1" 302 0
+[01/Oct/2026 14:19:07] "GET / HTTP/1.1" 200 3610
+[01/Oct/2026 14:19:07] "GET /static/css/img/amostra3.svg HTTP/1.1" 404 1927
+[01/Oct/2026 14:21:15] "GET / HTTP/1.1" 200 3610
+[01/Oct/2026 14:21:15] "GET /static/css/custom.css HTTP/1.1" 304 0
+[01/Oct/2026 14:21:15] "GET /static/tabler/css/tabler.min.css HTTP/1.1" 304 0
+[01/Oct/2026 14:21:15] "GET /static/tabler/js/tabler.min.js HTTP/1.1" 304 0
+[01/Oct/2026 14:21:15] "GET /static/img/logotipo-cesari-color.svg HTTP/1.1" 304 0
+[01/Oct/2026 14:21:15] "GET /static/frontend/css/motion.css HTTP/1.1" 304 0
+[01/Oct/2026 14:21:15] "GET /static/css/modules/tokens.css HTTP/1.1" 200 2041
+[01/Oct/2026 14:21:15] "GET /static/css/modules/forms.css HTTP/1.1" 200 1454
+[01/Oct/2026 14:21:15] "GET /static/css/modules/layout.css HTTP/1.1" 200 4935
+[01/Oct/2026 14:21:15] "GET /static/css/modules/navigation.css HTTP/1.1" 200 6381
+[01/Oct/2026 14:21:15] "GET /static/css/modules/tables.css HTTP/1.1" 200 5022
+[01/Oct/2026 14:21:15] "GET /static/css/modules/dashboard.css HTTP/1.1" 200 12847
+[01/Oct/2026 14:21:15] "GET /static/frontend/js/charts.js HTTP/1.1" 304 0
+[01/Oct/2026 14:21:15] "GET /static/css/modules/supplier-detail.css HTTP/1.1" 200 9064
+[01/Oct/2026 14:21:15] "GET /static/css/modules/auth.css HTTP/1.1" 200 2794
+[01/Oct/2026 14:21:15] "GET /static/vendor/chartjs/chart.umd.js HTTP/1.1" 304 0
+[01/Oct/2026 14:21:15] "GET /static/frontend/js/tables.js HTTP/1.1" 304 0
+[01/Oct/2026 14:21:15] "GET /static/frontend/js/forms.js HTTP/1.1" 304 0
+[01/Oct/2026 14:21:15] "GET /static/frontend/js/app.js HTTP/1.1" 304 0
+[01/Oct/2026 14:21:15] "GET /static/img/tabler-icons.svg HTTP/1.1" 304 0
+[01/Oct/2026 14:21:15] "GET /static/css/img/amostra3.svg HTTP/1.1" 404 1927
+[01/Oct/2026 14:21:16] "GET /favicon.ico HTTP/1.1" 302 0
+[01/Oct/2026 14:21:16] "GET /login/?next=/favicon.ico HTTP/1.1" 200 3034
+[01/Oct/2026 14:21:19] "GET /login/ HTTP/1.1" 200 2960
+[01/Oct/2026 14:21:19] "GET /favicon.ico HTTP/1.1" 302 0
+[01/Oct/2026 14:21:19] "GET /login/?next=/favicon.ico HTTP/1.1" 200 3034
+INFO 2026-10-01 14:21:35,773 axes.handlers.database: AXES: Successful login by {username: "********************", ip_address: "********************", user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36", path_info: "/login/"}.
+INFO 2026-10-01 14:21:35,775 axes.handlers.database: AXES: Cleaned up 0 expired access attempts from database that were older than 2026-10-01 17:16:35.580602+00:00
+INFO 2026-10-01 14:21:35,785 axes.handlers.database: AXES: Reset 0 access attempts from database.
+INFO 2026-10-01 14:21:35,786 axes.handlers.database: AXES: Deleted 0 failed login attempts by {username: "********************", ip_address: "********************", user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36", path_info: "/login/"} from database.
+[01/Oct/2026 14:21:35] "POST /login/ HTTP/1.1" 302 0
+[01/Oct/2026 14:21:35] "GET /avaliacoes/ HTTP/1.1" 200 5320
+Not Found: /favicon.ico
+WARNING 2026-10-01 14:21:35,941 django.request: Not Found: /favicon.ico
+[01/Oct/2026 14:21:35] "GET /favicon.ico HTTP/1.1" 404 4374
+[01/Oct/2026 14:24:39] "GET /avaliacoes/ HTTP/1.1" 200 5320
+[01/Oct/2026 14:24:39] "GET /static/css/modules/supplier-detail.css HTTP/1.1" 304 0
+[01/Oct/2026 14:24:39] "GET /avaliacoes/ HTTP/1.1" 200 5320
+[01/Oct/2026 14:24:42] "GET /dashboard/ HTTP/1.1" 200 12494
+[01/Oct/2026 14:24:43] "GET /avaliacoes/ HTTP/1.1" 200 5320
+C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\backend\apps\avaliacoes\services.py changed, reloading.
+INFO 2026-10-01 14:24:50,835 django.utils.autoreload: C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\backend\apps\avaliacoes\services.py changed, reloading.
+INFO 2026-10-01 14:24:51,378 axes.apps: AXES: BEGIN version 8.3.1, blocking by ip_address
 Watching for file changes with StatReloader
-INFO 2026-09-28 14:15:51,039 django.utils.autoreload: Watching for file changes with StatReloader
-[28/Sep/2026 16:08:53] "GET /login/ HTTP/1.1" 200 8392
-[28/Sep/2026 16:08:53,499] - Broken pipe from ('127.0.0.1', 48131)
-[28/Sep/2026 16:16:19] "GET /login/ HTTP/1.1" 200 8392
-[28/Sep/2026 16:16:19,187] - Broken pipe from ('127.0.0.1', 28670)
-[28/Sep/2026 16:16:19] "GET / HTTP/1.1" 200 5843
-[28/Sep/2026 16:16:19,244] - Broken pipe from ('127.0.0.1', 28671)
+INFO 2026-10-01 14:24:51,411 django.utils.autoreload: Watching for file changes with StatReloader
+[01/Oct/2026 14:25:37] "GET / HTTP/1.1" 302 0
+[01/Oct/2026 14:25:37] "GET /avaliacoes/ HTTP/1.1" 302 0
+[01/Oct/2026 14:25:37] "GET /avaliacoes/1/ HTTP/1.1" 200 53603
+[01/Oct/2026 14:25:37] "GET /static/css/modules/supplier-detail.css HTTP/1.1" 304 0
+[01/Oct/2026 14:25:51] "GET /avaliacoes/ HTTP/1.1" 302 0
+[01/Oct/2026 14:25:51] "GET /avaliacoes/1/ HTTP/1.1" 200 53603
+[01/Oct/2026 14:25:53] "GET /pendencias/ HTTP/1.1" 200 7275
+[01/Oct/2026 14:25:53] "GET /dashboard/ HTTP/1.1" 200 12494
+[01/Oct/2026 14:26:03] "GET /avaliacoes/ HTTP/1.1" 302 0
+[01/Oct/2026 14:26:03] "GET /avaliacoes/1/ HTTP/1.1" 200 53603
+[01/Oct/2026 14:26:04] "GET /dashboard/ HTTP/1.1" 200 12494
+[01/Oct/2026 14:26:17] "GET /avaliacoes/ HTTP/1.1" 302 0
+[01/Oct/2026 14:26:17] "GET /avaliacoes/1/ HTTP/1.1" 200 53603
+[01/Oct/2026 14:26:18] "GET /avaliacoes/ HTTP/1.1" 302 0
+[01/Oct/2026 14:26:18] "GET /avaliacoes/1/ HTTP/1.1" 200 53603
+[01/Oct/2026 14:26:19] "GET /dashboard/ HTTP/1.1" 200 12494
+[01/Oct/2026 14:26:22] "GET /avaliacoes/ HTTP/1.1" 302 0
+[01/Oct/2026 14:26:22] "GET /avaliacoes/1/ HTTP/1.1" 200 53603
+[01/Oct/2026 14:26:23] "GET /pendencias/ HTTP/1.1" 200 7275
+[01/Oct/2026 14:26:24] "GET /avaliacoes/ HTTP/1.1" 302 0
+[01/Oct/2026 14:26:24] "GET /avaliacoes/1/ HTTP/1.1" 200 53603
+[01/Oct/2026 14:26:32] "GET /dashboard/ HTTP/1.1" 200 12494
+[01/Oct/2026 14:28:43] "GET /avaliacoes/ HTTP/1.1" 302 0
+[01/Oct/2026 14:28:43] "GET /avaliacoes/1/ HTTP/1.1" 200 53603
+[01/Oct/2026 14:28:43] "GET /static/css/modules/supplier-detail.css HTTP/1.1" 304 0
+[01/Oct/2026 14:28:44] "GET /pendencias/ HTTP/1.1" 200 7275
+[01/Oct/2026 14:28:45] "GET /pendencias/ HTTP/1.1" 200 7275
+[01/Oct/2026 14:28:45] "GET /avaliacoes/ HTTP/1.1" 302 0
+[01/Oct/2026 14:28:45] "GET /avaliacoes/1/ HTTP/1.1" 200 53603
+[01/Oct/2026 14:29:43] "GET /pendencias/ HTTP/1.1" 200 7275
+[01/Oct/2026 14:29:45] "GET /avaliacoes/ HTTP/1.1" 302 0
+[01/Oct/2026 14:29:45] "GET /avaliacoes/1/ HTTP/1.1" 200 53603
+[01/Oct/2026 14:29:46] "GET /dashboard/ HTTP/1.1" 200 12494
+[01/Oct/2026 14:32:06] "GET /avaliacoes/ HTTP/1.1" 302 0
+[01/Oct/2026 14:32:06] "GET /avaliacoes/1/ HTTP/1.1" 200 53603
+[01/Oct/2026 14:32:06] "GET /static/css/modules/supplier-detail.css HTTP/1.1" 304 0
+[01/Oct/2026 14:32:07] "GET /dashboard/ HTTP/1.1" 200 12494
+[01/Oct/2026 14:32:35] "GET /pendencias/ HTTP/1.1" 200 7275
+[01/Oct/2026 14:32:36] "GET /avaliacoes/ HTTP/1.1" 302 0
+[01/Oct/2026 14:32:36] "GET /avaliacoes/1/ HTTP/1.1" 200 53603
+[01/Oct/2026 14:32:43] "GET /avaliacoes/ HTTP/1.1" 302 0
+[01/Oct/2026 14:32:43] "GET /avaliacoes/1/ HTTP/1.1" 200 53603
+C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\backend\apps\core\context_processors.py changed, reloading.
+INFO 2026-10-01 14:33:04,124 django.utils.autoreload: C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\backend\apps\core\context_processors.py changed, reloading.
+INFO 2026-10-01 14:33:04,738 axes.apps: AXES: BEGIN version 8.3.1, blocking by ip_address
+Watching for file changes with StatReloader
+INFO 2026-10-01 14:33:04,766 django.utils.autoreload: Watching for file changes with StatReloader
+C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\backend\apps\core\controllers.py changed, reloading.
+INFO 2026-10-01 14:33:10,349 django.utils.autoreload: C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\backend\apps\core\controllers.py changed, reloading.
+INFO 2026-10-01 14:33:10,894 axes.apps: AXES: BEGIN version 8.3.1, blocking by ip_address
+Watching for file changes with StatReloader
+INFO 2026-10-01 14:33:10,923 django.utils.autoreload: Watching for file changes with StatReloader
+[01/Oct/2026 14:35:46] "GET / HTTP/1.1" 200 3610
+[01/Oct/2026 14:35:46] "GET /static/css/img/amostra3.svg HTTP/1.1" 404 1927
+[01/Oct/2026 14:35:52] "GET / HTTP/1.1" 200 3610
+[01/Oct/2026 14:35:52] "GET /static/css/img/amostra3.svg HTTP/1.1" 404 1927
+[01/Oct/2026 14:35:57] "GET /login/ HTTP/1.1" 200 2960
+INFO 2026-10-01 14:36:07,603 axes.handlers.database: AXES: Successful login by {username: "********************", ip_address: "********************", user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36", path_info: "/login/"}.
+INFO 2026-10-01 14:36:07,605 axes.handlers.database: AXES: Cleaned up 0 expired access attempts from database that were older than 2026-10-01 17:31:07.412752+00:00
+INFO 2026-10-01 14:36:07,613 axes.handlers.database: AXES: Reset 0 access attempts from database.
+INFO 2026-10-01 14:36:07,614 axes.handlers.database: AXES: Deleted 0 failed login attempts by {username: "********************", ip_address: "********************", user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36", path_info: "/login/"} from database.
+[01/Oct/2026 14:36:07] "POST /login/ HTTP/1.1" 302 0
+[01/Oct/2026 14:36:07] "GET /avaliacoes/ HTTP/1.1" 302 0
+[01/Oct/2026 14:36:07] "GET /avaliacoes/1/ HTTP/1.1" 200 43684
+[01/Oct/2026 14:36:10] "GET /pendencias/ HTTP/1.1" 200 6785
+[01/Oct/2026 14:36:10] "GET /avaliacoes/ HTTP/1.1" 302 0
+[01/Oct/2026 14:36:10] "GET /avaliacoes/1/ HTTP/1.1" 200 43684
+C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\backend\apps\avaliacoes\services.py changed, reloading.
+INFO 2026-10-01 14:40:42,264 django.utils.autoreload: C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\backend\apps\avaliacoes\services.py changed, reloading.
+INFO 2026-10-01 14:40:42,864 axes.apps: AXES: BEGIN version 8.3.1, blocking by ip_address
+Watching for file changes with StatReloader
+INFO 2026-10-01 14:40:42,893 django.utils.autoreload: Watching for file changes with StatReloader
+C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\backend\apps\avaliacoes\services.py changed, reloading.
+INFO 2026-10-01 14:40:59,105 django.utils.autoreload: C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\backend\apps\avaliacoes\services.py changed, reloading.
+INFO 2026-10-01 14:40:59,765 axes.apps: AXES: BEGIN version 8.3.1, blocking by ip_address
+Watching for file changes with StatReloader
+INFO 2026-10-01 14:40:59,797 django.utils.autoreload: Watching for file changes with StatReloader
+Exception in thread django-main-thread:
+Traceback (most recent call last):
+  File "C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\.venv\Lib\site-packages\django\utils\autoreload.py", line 354, in run
+    get_resolver().urlconf_module
+  File "C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\.venv\Lib\site-packages\django\utils\functional.py", line 47, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\.venv\Lib\site-packages\django\urls\resolvers.py", line 722, in urlconf_module
+    return import_module(self.urlconf_name)
+  File "C:\Users\leandro.nunes\AppData\Local\Programs\Python\Python313\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 1023, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\config\urls.py", line 28, in <module>
+    path("", include("backend.apps.avaliacoes.urls")),
+             ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\.venv\Lib\site-packages\django\urls\conf.py", line 39, in include
+    urlconf_module = import_module(urlconf_module)
+  File "C:\Users\leandro.nunes\AppData\Local\Programs\Python\Python313\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 1023, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\backend\apps\avaliacoes\urls.py", line 3, in <module>
+    from . import controllers
+  File "C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\backend\apps\avaliacoes\controllers.py", line 9, in <module>
+    from .services import (
+    ...<6 lines>...
+    )
+  File "C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\backend\apps\avaliacoes\services.py", line 568
+    if questao_dispensa_subsequentes(questao) and resposta.resposta == Resposta.Valor.SIM:
+IndentationError: unexpected indent
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\leandro.nunes\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 1044, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\leandro.nunes\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 995, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\.venv\Lib\site-packages\django\utils\autoreload.py", line 81, in wrapper
+    raise e from _url_module_exception
+  File "C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\.venv\Lib\site-packages\django\utils\autoreload.py", line 66, in wrapper
+    fn(*args, **kwargs)
+    ~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\.venv\Lib\site-packages\django\core\management\commands\runserver.py", line 134, in inner_run
+    self.check(**check_kwargs)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\.venv\Lib\site-packages\django\core\management\base.py", line 498, in check
+    all_issues = checks.run_checks(
+        app_configs=app_configs,
+    ...<2 lines>...
+        databases=databases,
+    )
+  File "C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\.venv\Lib\site-packages\django\core\checks\registry.py", line 99, in run_checks
+    new_errors = check(app_configs=app_configs, databases=databases)
+  File "C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\.venv\Lib\site-packages\django\core\checks\urls.py", line 16, in check_url_config
+    return check_resolver(resolver)
+  File "C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\.venv\Lib\site-packages\django\core\checks\urls.py", line 26, in check_resolver
+    return check_method()
+  File "C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\.venv\Lib\site-packages\django\urls\resolvers.py", line 541, in check
+    for pattern in self.url_patterns:
+                   ^^^^^^^^^^^^^^^^^
+  File "C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\.venv\Lib\site-packages\django\utils\functional.py", line 47, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\.venv\Lib\site-packages\django\urls\resolvers.py", line 729, in url_patterns
+    patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
+                       ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\.venv\Lib\site-packages\django\utils\functional.py", line 47, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\.venv\Lib\site-packages\django\urls\resolvers.py", line 722, in urlconf_module
+    return import_module(self.urlconf_name)
+  File "C:\Users\leandro.nunes\AppData\Local\Programs\Python\Python313\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 1023, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\config\urls.py", line 28, in <module>
+    path("", include("backend.apps.avaliacoes.urls")),
+             ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\.venv\Lib\site-packages\django\urls\conf.py", line 39, in include
+    urlconf_module = import_module(urlconf_module)
+  File "C:\Users\leandro.nunes\AppData\Local\Programs\Python\Python313\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 1023, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\backend\apps\avaliacoes\urls.py", line 3, in <module>
+    from . import controllers
+  File "C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\backend\apps\avaliacoes\controllers.py", line 9, in <module>
+    from .services import (
+    ...<6 lines>...
+    )
+  File "C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\backend\apps\avaliacoes\services.py", line 568
+    if questao_dispensa_subsequentes(questao) and resposta.resposta == Resposta.Valor.SIM:
+IndentationError: unexpected indent
+C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\backend\apps\avaliacoes\services.py changed, reloading.
+INFO 2026-10-01 14:41:26,394 django.utils.autoreload: C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\backend\apps\avaliacoes\services.py changed, reloading.
+INFO 2026-10-01 14:41:26,924 axes.apps: AXES: BEGIN version 8.3.1, blocking by ip_address
+Watching for file changes with StatReloader
+INFO 2026-10-01 14:41:26,953 django.utils.autoreload: Watching for file changes with StatReloader
+C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\backend\apps\avaliacoes\services.py changed, reloading.
+INFO 2026-10-01 14:41:39,750 django.utils.autoreload: C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\backend\apps\avaliacoes\services.py changed, reloading.
+INFO 2026-10-01 14:41:40,292 axes.apps: AXES: BEGIN version 8.3.1, blocking by ip_address
+Watching for file changes with StatReloader
+INFO 2026-10-01 14:41:40,322 django.utils.autoreload: Watching for file changes with StatReloader
+C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\backend\apps\avaliacoes\services.py changed, reloading.
+INFO 2026-10-01 14:42:06,546 django.utils.autoreload: C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\backend\apps\avaliacoes\services.py changed, reloading.
+INFO 2026-10-01 14:42:06,997 axes.apps: AXES: BEGIN version 8.3.1, blocking by ip_address
+Watching for file changes with StatReloader
+INFO 2026-10-01 14:42:07,025 django.utils.autoreload: Watching for file changes with StatReloader
+[01/Oct/2026 14:43:40] "GET /login/ HTTP/1.1" 200 2960
+INFO 2026-10-01 14:43:53,005 axes.handlers.database: AXES: Successful login by {username: "********************", ip_address: "********************", user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Code/1.139.1 Chrome/150.0.7871.250 Electron/43.6.0 Safari/537.36", path_info: "/login/"}.
+INFO 2026-10-01 14:43:53,006 axes.handlers.database: AXES: Cleaned up 0 expired access attempts from database that were older than 2026-10-01 17:38:52.856754+00:00
+INFO 2026-10-01 14:43:53,014 axes.handlers.database: AXES: Reset 0 access attempts from database.
+INFO 2026-10-01 14:43:53,014 axes.handlers.database: AXES: Deleted 0 failed login attempts by {username: "********************", ip_address: "********************", user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Code/1.139.1 Chrome/150.0.7871.250 Electron/43.6.0 Safari/537.36", path_info: "/login/"} from database.
+[01/Oct/2026 14:43:53] "POST /login/ HTTP/1.1" 302 0
+[01/Oct/2026 14:43:53] "GET /avaliacoes/ HTTP/1.1" 302 0
+[01/Oct/2026 14:43:53] "GET /avaliacoes/1/ HTTP/1.1" 200 45248
+[01/Oct/2026 14:43:57] "GET /avaliacoes/ HTTP/1.1" 302 0
+[01/Oct/2026 14:43:57] "GET /avaliacoes/1/ HTTP/1.1" 200 45248
+[01/Oct/2026 14:44:11] "GET /avaliacoes/1/ HTTP/1.1" 200 45248
+[01/Oct/2026 14:44:11] "GET /avaliacoes/1/ HTTP/1.1" 200 45248
+[01/Oct/2026 14:44:11] "GET /avaliacoes/1/ HTTP/1.1" 200 45248
+C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\backend\apps\avaliacoes\services.py changed, reloading.
+INFO 2026-10-01 14:45:22,163 django.utils.autoreload: C:\Users\leandro.nunes\Downloads\avaliacao_fornecedores_bid\backend\apps\avaliacoes\services.py changed, reloading.
+INFO 2026-10-01 14:45:22,660 axes.apps: AXES: BEGIN version 8.3.1, blocking by ip_address
+Watching for file changes with StatReloader
+INFO 2026-10-01 14:45:22,684 django.utils.autoreload: Watching for file changes with StatReloader
+[01/Oct/2026 14:46:01] "GET /avaliacoes/1/ HTTP/1.1" 200 45332
+[01/Oct/2026 14:46:01] "GET /avaliacoes/1/ HTTP/1.1" 200 45332
+[01/Oct/2026 14:46:13] "GET /avaliacoes/ HTTP/1.1" 302 0
+[01/Oct/2026 14:46:13] "GET /avaliacoes/1/ HTTP/1.1" 200 45332
+[01/Oct/2026 14:46:33] "GET / HTTP/1.1" 302 0
+[01/Oct/2026 14:46:33] "GET /avaliacoes/ HTTP/1.1" 302 0
+[01/Oct/2026 14:46:34] "GET /avaliacoes/1/ HTTP/1.1" 200 45332
+[01/Oct/2026 14:46:44] "GET /avaliacoes/ HTTP/1.1" 302 0
+[01/Oct/2026 14:46:44] "GET /avaliacoes/1/ HTTP/1.1" 200 45332
+[01/Oct/2026 14:46:48] "GET / HTTP/1.1" 302 0
+[01/Oct/2026 14:46:48] "GET /avaliacoes/ HTTP/1.1" 302 0
+[01/Oct/2026 14:46:48] "GET /avaliacoes/1/ HTTP/1.1" 200 45332
+[01/Oct/2026 14:54:40] "GET /avaliacoes/ HTTP/1.1" 302 0
+[01/Oct/2026 14:54:40] "GET /avaliacoes/1/ HTTP/1.1" 200 45450
+[01/Oct/2026 14:55:20] "GET /avaliacoes/1/ HTTP/1.1" 200 45450
+[01/Oct/2026 14:55:40] "GET /avaliacoes/1/ HTTP/1.1" 200 45450
+[01/Oct/2026 14:55:40] "GET /static/img/logotipo-cesari-color.svg HTTP/1.1" 200 99074
+[01/Oct/2026 14:55:40] "GET /static/css/custom.css HTTP/1.1" 200 309
+[01/Oct/2026 14:55:40] "GET /static/tabler/js/tabler.min.js HTTP/1.1" 200 85439
+[01/Oct/2026 14:55:40] "GET /static/frontend/css/motion.css HTTP/1.1" 200 199
+[01/Oct/2026 14:55:40] "GET /static/frontend/js/charts.js HTTP/1.1" 200 6897
+[01/Oct/2026 14:55:40] "GET /static/frontend/js/tables.js HTTP/1.1" 200 8639
+[01/Oct/2026 14:55:40] "GET /static/frontend/js/forms.js HTTP/1.1" 200 11707
+[01/Oct/2026 14:55:40] "GET /static/css/modules/navigation.css HTTP/1.1" 200 6381
+[01/Oct/2026 14:55:40] "GET /static/css/modules/forms.css HTTP/1.1" 200 1454
+[01/Oct/2026 14:55:40] "GET /static/css/modules/tokens.css HTTP/1.1" 200 2041
+[01/Oct/2026 14:55:40] "GET /static/css/modules/layout.css HTTP/1.1" 200 4935
+[01/Oct/2026 14:55:40] "GET /static/vendor/chartjs/chart.umd.js HTTP/1.1" 200 208518
+[01/Oct/2026 14:55:40] "GET /static/css/modules/tables.css HTTP/1.1" 200 5022
+[01/Oct/2026 14:55:40] "GET /static/css/modules/auth.css HTTP/1.1" 200 2794
+[01/Oct/2026 14:55:40] "GET /static/css/modules/dashboard.css HTTP/1.1" 200 12847
+[01/Oct/2026 14:55:40] "GET /static/css/modules/supplier-detail.css HTTP/1.1" 200 8744
+[01/Oct/2026 14:55:40] "GET /static/frontend/js/app.js HTTP/1.1" 200 962
+[01/Oct/2026 14:55:40] "GET /static/img/tabler-icons.svg HTTP/1.1" 200 4516
+[01/Oct/2026 14:55:40] "GET /static/tabler/css/tabler.min.css HTTP/1.1" 200 693779
+Not Found: /favicon.ico
+WARNING 2026-10-01 14:55:40,865 django.request: Not Found: /favicon.ico
+[01/Oct/2026 14:55:40] "GET /favicon.ico HTTP/1.1" 404 4374
+[01/Oct/2026 14:55:41] "GET /avaliacoes/1/ HTTP/1.1" 200 45450
+[01/Oct/2026 14:55:41] "GET /static/vendor/chartjs/chart.umd.js HTTP/1.1" 200 208518
+[01/Oct/2026 14:55:41] "GET /static/css/custom.css HTTP/1.1" 200 309
+[01/Oct/2026 14:55:41] "GET /static/frontend/css/motion.css HTTP/1.1" 200 199
+[01/Oct/2026 14:55:41] "GET /static/frontend/js/charts.js HTTP/1.1" 200 6897
+[01/Oct/2026 14:55:41] "GET /static/tabler/js/tabler.min.js HTTP/1.1" 200 85439
+[01/Oct/2026 14:55:41] "GET /static/img/logotipo-cesari-color.svg HTTP/1.1" 200 99074
+[01/Oct/2026 14:55:41] "GET /static/frontend/js/tables.js HTTP/1.1" 200 8639
+[01/Oct/2026 14:55:41] "GET /static/frontend/js/forms.js HTTP/1.1" 200 11707
+[01/Oct/2026 14:55:41] "GET /static/css/modules/layout.css HTTP/1.1" 200 4935
+[01/Oct/2026 14:55:41] "GET /static/css/modules/tokens.css HTTP/1.1" 200 2041
+[01/Oct/2026 14:55:41] "GET /static/frontend/js/app.js HTTP/1.1" 200 962
+[01/Oct/2026 14:55:41] "GET /static/css/modules/navigation.css HTTP/1.1" 200 6381
+[01/Oct/2026 14:55:41] "GET /static/css/modules/forms.css HTTP/1.1" 200 1454
+[01/Oct/2026 14:55:41] "GET /static/css/modules/auth.css HTTP/1.1" 200 2794
+[01/Oct/2026 14:55:41] "GET /static/css/modules/tables.css HTTP/1.1" 200 5022
+[01/Oct/2026 14:55:41] "GET /static/css/modules/supplier-detail.css HTTP/1.1" 200 8744
+[01/Oct/2026 14:55:41] "GET /static/css/modules/dashboard.css HTTP/1.1" 200 12847
+[01/Oct/2026 14:55:41] "GET /static/img/tabler-icons.svg HTTP/1.1" 200 4516
+[01/Oct/2026 14:55:41] "GET /static/tabler/css/tabler.min.css HTTP/1.1" 200 693779
+Not Found: /favicon.ico
+WARNING 2026-10-01 14:55:41,664 django.request: Not Found: /favicon.ico
+[01/Oct/2026 14:55:41] "GET /favicon.ico HTTP/1.1" 404 4374
+[01/Oct/2026 14:55:41] "GET /avaliacoes/1/ HTTP/1.1" 200 45450
+[01/Oct/2026 14:55:41] "GET /static/frontend/css/motion.css HTTP/1.1" 200 199
+[01/Oct/2026 14:55:41] "GET /static/css/custom.css HTTP/1.1" 200 309
+[01/Oct/2026 14:55:41] "GET /static/tabler/js/tabler.min.js HTTP/1.1" 200 85439
+[01/Oct/2026 14:55:41] "GET /static/img/logotipo-cesari-color.svg HTTP/1.1" 200 99074
+[01/Oct/2026 14:55:41] "GET /static/frontend/js/charts.js HTTP/1.1" 200 6897
+[01/Oct/2026 14:55:41] "GET /static/frontend/js/tables.js HTTP/1.1" 200 8639
+[01/Oct/2026 14:55:41] "GET /static/css/modules/auth.css HTTP/1.1" 200 2794
+[01/Oct/2026 14:55:41] "GET /static/css/modules/layout.css HTTP/1.1" 200 4935
+[01/Oct/2026 14:55:41] "GET /static/css/modules/tokens.css HTTP/1.1" 200 2041
+[01/Oct/2026 14:55:41] "GET /static/vendor/chartjs/chart.umd.js HTTP/1.1" 200 208518
+[01/Oct/2026 14:55:41] "GET /static/css/modules/navigation.css HTTP/1.1" 200 6381
+[01/Oct/2026 14:55:41] "GET /static/css/modules/tables.css HTTP/1.1" 200 5022
+[01/Oct/2026 14:55:41] "GET /static/css/modules/forms.css HTTP/1.1" 200 1454
+[01/Oct/2026 14:55:41] "GET /static/css/modules/dashboard.css HTTP/1.1" 200 12847
+[01/Oct/2026 14:55:41] "GET /static/css/modules/supplier-detail.css HTTP/1.1" 200 8744
+[01/Oct/2026 14:55:41] "GET /static/frontend/js/forms.js HTTP/1.1" 200 11707
+[01/Oct/2026 14:55:41] "GET /static/img/tabler-icons.svg HTTP/1.1" 200 4516
+[01/Oct/2026 14:55:41] "GET /static/frontend/js/app.js HTTP/1.1" 200 962
+[01/Oct/2026 14:55:41] "GET /static/tabler/css/tabler.min.css HTTP/1.1" 200 693779
+Not Found: /favicon.ico
+WARNING 2026-10-01 14:55:41,890 django.request: Not Found: /favicon.ico
+[01/Oct/2026 14:55:41] "GET /favicon.ico HTTP/1.1" 404 4374
+[01/Oct/2026 14:55:41] "GET /avaliacoes/1/ HTTP/1.1" 200 45450
+[01/Oct/2026 14:55:41] "GET /static/css/custom.css HTTP/1.1" 200 309
+[01/Oct/2026 14:55:41] "GET /static/frontend/css/motion.css HTTP/1.1" 200 199
+[01/Oct/2026 14:55:41] "GET /static/tabler/js/tabler.min.js HTTP/1.1" 200 85439
+[01/Oct/2026 14:55:41] "GET /static/img/logotipo-cesari-color.svg HTTP/1.1" 200 99074
+[01/Oct/2026 14:55:41] "GET /static/css/modules/tokens.css HTTP/1.1" 200 2041
+[01/Oct/2026 14:55:41] "GET /static/frontend/js/charts.js HTTP/1.1" 200 6897
+[01/Oct/2026 14:55:41] "GET /static/frontend/js/tables.js HTTP/1.1" 200 8639
+[01/Oct/2026 14:55:41] "GET /static/css/modules/layout.css HTTP/1.1" 200 4935
+[01/Oct/2026 14:55:41] "GET /static/vendor/chartjs/chart.umd.js HTTP/1.1" 200 208518
+[01/Oct/2026 14:55:41] "GET /static/css/modules/forms.css HTTP/1.1" 200 1454
+[01/Oct/2026 14:55:41] "GET /static/css/modules/auth.css HTTP/1.1" 200 2794
+[01/Oct/2026 14:55:41] "GET /static/css/modules/navigation.css HTTP/1.1" 200 6381
+[01/Oct/2026 14:55:41] "GET /static/css/modules/supplier-detail.css HTTP/1.1" 200 8744
+[01/Oct/2026 14:55:41] "GET /static/css/modules/tables.css HTTP/1.1" 200 5022
+[01/Oct/2026 14:55:42] "GET /static/css/modules/dashboard.css HTTP/1.1" 200 12847
+[01/Oct/2026 14:55:42] "GET /static/frontend/js/app.js HTTP/1.1" 200 962
+[01/Oct/2026 14:55:42] "GET /static/frontend/js/forms.js HTTP/1.1" 200 11707
+[01/Oct/2026 14:55:42] "GET /static/img/tabler-icons.svg HTTP/1.1" 200 4516
+[01/Oct/2026 14:55:42] "GET /static/tabler/css/tabler.min.css HTTP/1.1" 200 693779
+Not Found: /favicon.ico
+WARNING 2026-10-01 14:55:42,079 django.request: Not Found: /favicon.ico
+[01/Oct/2026 14:55:42] "GET /favicon.ico HTTP/1.1" 404 4374
+[01/Oct/2026 14:55:42] "GET /avaliacoes/1/ HTTP/1.1" 200 45450
+[01/Oct/2026 14:55:42] "GET /static/css/custom.css HTTP/1.1" 200 309
+[01/Oct/2026 14:55:42] "GET /static/frontend/css/motion.css HTTP/1.1" 200 199
+[01/Oct/2026 14:55:42] "GET /static/tabler/js/tabler.min.js HTTP/1.1" 200 85439
+[01/Oct/2026 14:55:42] "GET /static/img/logotipo-cesari-color.svg HTTP/1.1" 200 99074
+[01/Oct/2026 14:55:42] "GET /static/vendor/chartjs/chart.umd.js HTTP/1.1" 200 208518
+[01/Oct/2026 14:55:42] "GET /static/frontend/js/charts.js HTTP/1.1" 200 6897
+[01/Oct/2026 14:55:42] "GET /static/frontend/js/tables.js HTTP/1.1" 200 8639
+[01/Oct/2026 14:55:42] "GET /static/frontend/js/forms.js HTTP/1.1" 200 11707
+[01/Oct/2026 14:55:42] "GET /static/frontend/js/app.js HTTP/1.1" 200 962
+[01/Oct/2026 14:55:42] "GET /static/css/modules/tokens.css HTTP/1.1" 200 2041
+[01/Oct/2026 14:55:42] "GET /static/css/modules/layout.css HTTP/1.1" 200 4935
+[01/Oct/2026 14:55:42] "GET /static/css/modules/forms.css HTTP/1.1" 200 1454
+[01/Oct/2026 14:55:42] "GET /static/css/modules/navigation.css HTTP/1.1" 200 6381
+[01/Oct/2026 14:55:42] "GET /static/css/modules/tables.css HTTP/1.1" 200 5022
+[01/Oct/2026 14:55:42] "GET /static/css/modules/auth.css HTTP/1.1" 200 2794
+[01/Oct/2026 14:55:42] "GET /static/css/modules/dashboard.css HTTP/1.1" 200 12847
+[01/Oct/2026 14:55:42] "GET /static/img/tabler-icons.svg HTTP/1.1" 200 4516
+[01/Oct/2026 14:55:42] "GET /static/css/modules/supplier-detail.css HTTP/1.1" 200 8744
+[01/Oct/2026 14:55:42] "GET /static/tabler/css/tabler.min.css HTTP/1.1" 200 693779
+[01/Oct/2026 14:56:46] "GET /avaliacoes/1/ HTTP/1.1" 200 45450
+[01/Oct/2026 14:56:46] "GET /static/frontend/js/forms.js HTTP/1.1" 304 0
+[01/Oct/2026 14:56:46] "GET /static/css/modules/supplier-detail.css HTTP/1.1" 304 0
+[01/Oct/2026 14:56:50] "GET /avaliacoes/ HTTP/1.1" 302 0
+[01/Oct/2026 14:56:50] "GET /avaliacoes/1/ HTTP/1.1" 200 45450
+[01/Oct/2026 15:03:13] "GET /avaliacoes/ HTTP/1.1" 302 0
+[01/Oct/2026 15:03:13] "GET /avaliacoes/1/ HTTP/1.1" 200 45233
+[01/Oct/2026 15:03:13] "GET /static/frontend/js/forms.js HTTP/1.1" 304 0
+[01/Oct/2026 15:03:13] "GET /static/css/modules/supplier-detail.css HTTP/1.1" 304 0
+[01/Oct/2026 15:03:14] "GET /pendencias/ HTTP/1.1" 200 6568
+[01/Oct/2026 15:03:15] "GET /avaliacoes/ HTTP/1.1" 302 0
+[01/Oct/2026 15:03:15] "GET /avaliacoes/1/ HTTP/1.1" 200 45233
+[01/Oct/2026 15:04:22] "GET /avaliacoes/ HTTP/1.1" 302 0
+[01/Oct/2026 15:04:22] "GET /avaliacoes/1/ HTTP/1.1" 200 45233
+[01/Oct/2026 15:04:22] "GET /static/frontend/js/forms.js HTTP/1.1" 304 0
+[01/Oct/2026 15:04:22] "GET /static/css/modules/supplier-detail.css HTTP/1.1" 304 0
+[01/Oct/2026 15:04:23] "GET /pendencias/ HTTP/1.1" 200 6568
+[01/Oct/2026 15:04:23] "GET /avaliacoes/ HTTP/1.1" 302 0
+[01/Oct/2026 15:04:23] "GET /avaliacoes/1/ HTTP/1.1" 200 45233
+[01/Oct/2026 15:04:52] "POST /avaliacoes/1/ HTTP/1.1" 302 0
+[01/Oct/2026 15:04:52] "GET /avaliacoes/1/ HTTP/1.1" 200 46679
+[01/Oct/2026 15:04:54] "GET /avaliacoes/ HTTP/1.1" 302 0
+[01/Oct/2026 15:04:54] "GET /avaliacoes/1/ HTTP/1.1" 200 46410
+[01/Oct/2026 15:04:55] "GET /pendencias/ HTTP/1.1" 200 6568
+[01/Oct/2026 15:04:56] "GET /avaliacoes/ HTTP/1.1" 302 0
+[01/Oct/2026 15:04:56] "GET /avaliacoes/1/ HTTP/1.1" 200 46410
+[01/Oct/2026 15:05:17] "GET /pendencias/ HTTP/1.1" 200 6568
+[01/Oct/2026 15:05:19] "GET /avaliacoes/ HTTP/1.1" 302 0
+[01/Oct/2026 15:05:19] "GET /avaliacoes/1/ HTTP/1.1" 200 46410
+[01/Oct/2026 15:07:09] "GET /dashboard/ HTTP/1.1" 302 0
+[01/Oct/2026 15:07:09] "GET /avaliacoes/ HTTP/1.1" 302 0
+[01/Oct/2026 15:07:09] "GET /avaliacoes/1/ HTTP/1.1" 200 46410
+[01/Oct/2026 15:07:09] "GET /static/frontend/js/forms.js HTTP/1.1" 304 0
+[01/Oct/2026 15:07:09] "GET /static/css/modules/supplier-detail.css HTTP/1.1" 304 0
+[01/Oct/2026 16:38:44] "GET /avaliacoes/1/ HTTP/1.1" 302 0
+[01/Oct/2026 16:38:44] "GET /login/?next=/avaliacoes/1/ HTTP/1.1" 200 3036
+[01/Oct/2026 16:38:44] "GET /static/frontend/js/forms.js HTTP/1.1" 304 0
+[01/Oct/2026 16:38:44] "GET /static/css/modules/supplier-detail.css HTTP/1.1" 304 0

@@ -9,6 +9,7 @@ from django.utils import timezone
 
 from backend.apps.accounts.models import UserProfile
 from backend.apps.avaliacoes.models import Avaliacao, Devolucao, Resposta
+from backend.apps.avaliacoes.services import questao_exige_evidencia_se_sim
 from backend.apps.core.models import Configuracao
 from backend.apps.fornecedores.models import Fornecedor, FornecedorUsuario
 from backend.apps.qualificacoes.models import Qualificacao
@@ -286,7 +287,7 @@ class Command(BaseCommand):
                     uso_interno_compras=uso_interno,
                     ajuda=ajuda,
                     obrigatoria=True,
-                    exige_evidencia_se_sim=tipo == "ARQUIVO",
+                    exige_evidencia_se_sim=questao_exige_evidencia_se_sim(tipo, texto),
                     exige_justificativa_se_nao=False,
                     ativa=True,
                 )
@@ -391,7 +392,7 @@ class Command(BaseCommand):
                         )
 
         Configuracao.objects.update_or_create(chave="VIGENCIA_DIAS", defaults={"valor": {"dias": 365}, "descricao": "Duração da vigência da qualificação em dias."})
-        Configuracao.objects.update_or_create(chave="UPLOAD_EXTENSOES_PERMITIDAS", defaults={"valor": {"extensoes": ["pdf", "jpg", "jpeg", "png", "docx", "xlsx"]}})
+        Configuracao.objects.update_or_create(chave="UPLOAD_EXTENSOES_PERMITIDAS", defaults={"valor": {"extensoes": ["pdf"]}})
         Configuracao.objects.update_or_create(chave="UPLOAD_MAX_BYTES", defaults={"valor": {"bytes": 10485760}})
 
         msg = f"Seed concluido com {len(DEMO_SUPPLIER_NAMES)} fornecedores de demonstracao. Usuarios: admin, compras, fornecedor."

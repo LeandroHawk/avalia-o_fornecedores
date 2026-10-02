@@ -8,7 +8,7 @@
     <div class="login-form-panel">
       <img class="login-brand-logo" src="{% static 'img/logotipo-cesari-color.svg' %}" alt="Cesari">
       <h1 class="login-title">Bem-vindo novamente</h1>
-      <p class="login-subtitle">Acesse o centro de comando da avalia&ccedil;&atilde;o de fornecedores do GRUPO CESARI.</p>
+      <p class="login-subtitle">Acesse o centro de comando da avaliação de fornecedores do GRUPO CESARI.</p>
       <form method="post" novalidate>
         {% csrf_token %}
         {% if next %}
@@ -16,11 +16,11 @@
         {% endif %}
         {% if form.errors %}
           <div class="alert alert-danger login-error">
-            Por favor, entre com um usu&aacute;rio e senha corretos. Note que ambos os campos diferenciam mai&uacute;sculas e min&uacute;sculas.
+            Por favor, entre com um usuário e senha corretos. Note que ambos os campos diferenciam maiúsculas e minúsculas.
           </div>
         {% endif %}
         <div class="mb-3">
-          <label class="form-label" for="{{ form.username.id_for_label }}">Usu&aacute;rio</label>
+          <label class="form-label" for="{{ form.username.id_for_label }}">Usuário</label>
           <div class="login-field">
             <svg class="login-field-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0"></path>

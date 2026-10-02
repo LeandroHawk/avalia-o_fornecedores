@@ -27,12 +27,13 @@ def _navigation_items(request):
     if not getattr(user, "is_authenticated", False):
         return []
 
-    items = [_nav_item(request, label="Dashboard", icon="layout-dashboard", url_name="dashboard")]
-
     if is_fornecedor(user):
-        items.append(_nav_item(request, label="Minhas avaliações", icon="list-check", url_name="avaliacao_list"))
+        items = [_nav_item(request, label="Minhas avaliações", icon="list-check", url_name="avaliacao_list")]
     elif is_compras(user) or is_admin(user):
+        items = [_nav_item(request, label="Dashboard", icon="layout-dashboard", url_name="dashboard")]
         items.append(_nav_item(request, label="Avaliações", icon="clipboard-check", url_name="avaliacao_list"))
+    else:
+        items = []
 
     items.append(_nav_item(request, label="Pendências", icon="bell", url_name="pendencias"))
 

@@ -4,6 +4,7 @@ from pathlib import Path
 import shlex
 import subprocess
 import tempfile
+import unicodedata
 
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.conf import settings
@@ -14,9 +15,10 @@ from django.utils import timezone
 from backend.apps.accounts.utils import is_admin, is_compras, is_fornecedor
 from backend.apps.auditoria.services import registrar_auditoria
 from backend.apps.core.models import Configuracao
+from backend.apps.fornecedores.models import Fornecedor, FornecedorUsuario
 from backend.apps.fornecedores.security import user_can_access_fornecedor
 from backend.apps.notificacoes.models import Notificacao
-from backend.apps.questionarios.models import Questao
+from backend.apps.questionarios.models import Categoria, OpcaoResposta, Questao, Questionario, QuestionarioVersao
 from backend.apps.qualificacoes.models import Qualificacao
 
 from .forms import FornecedorCadastroForm
@@ -57,6 +59,50 @@ SCORE_BUCKETS = [
 ]
 
 
+QUESTOES_COM_EVIDENCIA_SE_SIM = {
+    "inscricao municipal",
+    "inscricao estadual",
+    "certidoes negativas (inss, fgts, receita federal)",
+    "possui alvara de funcionamento vigente?",
+    "possui avcb?",
+    "licencas ambientais obrigatorias (ex.: operacao, emissao)",
+    "outras certificacoes?",
+}
+
+QUESTAO_OUTRAS_CERTIFICACOES = "outras certificacoes?"
+MAX_ARQUIVOS_OUTRAS_CERTIFICACOES = 5
+
+
+def _normalizar_texto(texto):
+    sem_acentos = unicodedata.normalize("NFKD", texto or "").encode("ascii", "ignore").decode("ascii")
+    return " ".join(sem_acentos.casefold().split())
+
+
+def questao_exige_evidencia_se_sim(tipo, enunciado):
+    return tipo == Questao.Tipo.ARQUIVO or _normalizar_texto(enunciado) in QUESTOES_COM_EVIDENCIA_SE_SIM
+
+
+def max_arquivos_questao(questao):
+    if _normalizar_texto(questao.enunciado) == QUESTAO_OUTRAS_CERTIFICACOES:
+        return MAX_ARQUIVOS_OUTRAS_CERTIFICACOES
+    return 1
+
+
+def questao_dispensa_subsequentes(questao):
+    ajuda = (questao.ajuda or "").lower()
+    if "dispensa as questões subsequentes" in ajuda:
+        return True
+
+    enunciado = (questao.enunciado or "").lower()
+    enunciado_compacto = "".join(char for char in enunciado if char.isalnum())
+    certificacoes_dispensa = {"iso9001", "iso14001", "iso45001"}
+    return (
+        "certifica" in enunciado
+        and "vigente" in enunciado
+        and any(certificacao in enunciado_compacto for certificacao in certificacoes_dispensa)
+    )
+
+
 def resposta_valida(questao, valor):
     if not valor:
         return ""
@@ -74,14 +120,135 @@ def get_avaliacao_for_user(user, pk):
     return Avaliacao.objects.visible_to_user(user).with_detail_relations().get(pk=pk)
 
 
+def _arquivos_enviados(files, field_name):
+    if hasattr(files, "getlist"):
+        return [file_obj for file_obj in files.getlist(field_name) if file_obj]
+    file_obj = files.get(field_name)
+    return [file_obj] if file_obj else []
+
+
 def get_evidencia_for_download(user, pk):
     evidencia = Evidencia.objects.select_related("resposta__avaliacao", "resposta__avaliacao__fornecedor").get(pk=pk, ativo=True)
     assert_can_access_avaliacao(user, evidencia.resposta.avaliacao)
     return evidencia
 
 
+def _placeholder_cnpj(user):
+    base = getattr(user, "id", 0) or 0
+    for offset in range(100):
+        cnpj = f"99.{base:03d}.{(base * 137 + offset) % 1000:03d}/0001-{(base + offset) % 100:02d}"
+        if not Fornecedor.objects.filter(cnpj=cnpj).exists():
+            return cnpj
+    return f"99.999.{base % 1000:03d}/0001-{base % 100:02d}"
+
+
+def _get_or_create_fornecedor_vinculo(user):
+    vinculo = getattr(user, "fornecedor_vinculo", None)
+    if vinculo and vinculo.ativo:
+        return vinculo
+
+    email = (getattr(user, "email", "") or "").strip()
+    fornecedor = Fornecedor.objects.filter(email__iexact=email).first() if email else None
+    if not fornecedor:
+        nome = (getattr(user, "first_name", "") or getattr(user, "username", "") or "Fornecedor").strip()
+        fornecedor = Fornecedor.objects.create(
+            razao_social=nome,
+            nome_fantasia=nome,
+            cnpj=_placeholder_cnpj(user),
+            email=email or f"{getattr(user, 'username', 'fornecedor')}@fornecedor.local",
+            responsavel=nome,
+            status=Fornecedor.Status.ATIVO,
+        )
+    vinculo, _created = FornecedorUsuario.objects.update_or_create(
+        user=user,
+        defaults={"fornecedor": fornecedor, "principal": True, "ativo": True},
+    )
+    return vinculo
+
+
+def _get_or_create_default_questionario_versao():
+    versao = (
+        QuestionarioVersao.objects.filter(publicado=True, ativo=True, questionario__ativo=True)
+        .select_related("questionario")
+        .order_by("-questionario__criado_em", "-numero")
+        .first()
+    )
+    if versao:
+        return versao
+
+    from backend.apps.core.management.commands.seed_demo import SECTIONS
+
+    questionario, _created = Questionario.objects.update_or_create(
+        nome="Avaliação de fornecedores CESARI",
+        defaults={
+            "descricao": "Questionário baseado no layout Rev1.",
+            "ativo": True,
+        },
+    )
+    versao, _created = QuestionarioVersao.objects.update_or_create(
+        questionario=questionario,
+        numero=1,
+        defaults={"titulo": "Layout Rev1", "publicado": True, "ativo": True},
+    )
+    if versao.categorias.exists():
+        return versao
+
+    for ordem_cat, (nome, perguntas) in enumerate(SECTIONS, start=1):
+        categoria = Categoria.objects.create(versao=versao, nome=nome, ordem=ordem_cat, peso=Decimal("1.00"), ativa=True)
+        uso_interno = nome == "Uso interno (Compras)"
+        for ordem, (texto, tipo, peso, critica, ajuda) in enumerate(perguntas, start=1):
+            questao = Questao.objects.create(
+                categoria=categoria,
+                ordem=ordem,
+                enunciado=texto,
+                tipo=tipo,
+                peso=Decimal(peso),
+                critica=critica,
+                uso_interno_compras=uso_interno,
+                ajuda=ajuda,
+                obrigatoria=True,
+                exige_evidencia_se_sim=questao_exige_evidencia_se_sim(tipo, texto),
+                exige_justificativa_se_nao=False,
+                ativa=True,
+            )
+            if texto == "Volume de faturamento anual":
+                for idx, option in enumerate(["Até R$ 1M", "R$ 1M a R$ 5M", "R$ 5M a R$ 20M", "Acima de R$ 20M"], start=1):
+                    OpcaoResposta.objects.create(
+                        questao=questao,
+                        valor=option,
+                        rotulo=option,
+                        pontuacao=Decimal(idx),
+                        ordem=idx,
+                        ativa=True,
+                    )
+    return versao
+
+
+@transaction.atomic
+def get_or_create_fornecedor_avaliacao(user):
+    if not is_fornecedor(user):
+        return None
+    vinculo = _get_or_create_fornecedor_vinculo(user)
+
+    avaliacao = Avaliacao.objects.visible_to_user(user).with_detail_relations().order_by("-criado_em").first()
+    if avaliacao:
+        return avaliacao
+
+    versao = _get_or_create_default_questionario_versao()
+
+    return Avaliacao.objects.create(
+        fornecedor=vinculo.fornecedor,
+        questionario_versao=versao,
+        periodo=str(timezone.localdate().year),
+        responsavel=user,
+        status=Avaliacao.Status.RASCUNHO,
+    )
+
+
 def build_avaliacao_context(user, avaliacao, cadastro_form=None):
     can_review = is_compras(user) or is_admin(user)
+    status_fornecedor_editavel = {Avaliacao.Status.RASCUNHO, Avaliacao.Status.DEVOLVIDA, Avaliacao.Status.EM_CORRECAO}
+    status_compras_editavel = {Avaliacao.Status.ENVIADA, Avaliacao.Status.EM_ANALISE}
     categorias = avaliacao.questionario_versao.categorias.filter(ativa=True).prefetch_related("questoes__opcoes")
     respostas = {r.questao_id: r for r in avaliacao.respostas.prefetch_related("evidencias")}
     categorias_data = []
@@ -91,46 +258,59 @@ def build_avaliacao_context(user, avaliacao, cadastro_form=None):
     for categoria in categorias:
         questoes = []
         cat_total = cat_respondidas = 0
+        dispensa_ativa = False
         for questao in categoria.questoes.filter(ativa=True):
             if questao.uso_interno_compras and not can_review:
                 continue
             resposta = respostas.get(questao.id)
+            dispensada = bool(dispensa_ativa and not questao.uso_interno_compras)
             evidencia_ok = bool(resposta and resposta.evidencias.filter(ativo=True).exists())
             respondida = bool(resposta and resposta.resposta)
             if questao.tipo == Questao.Tipo.ARQUIVO:
                 respondida = evidencia_ok
-            missing_file = bool(
-                questao.obrigatoria
-                and (
-                    questao.tipo == Questao.Tipo.ARQUIVO
-                    or (questao.exige_evidencia_se_sim and resposta and resposta.resposta == Resposta.Valor.SIM)
+            missing_file = False
+            if not dispensada:
+                missing_file = bool(
+                    questao.obrigatoria
+                    and (
+                        questao.tipo == Questao.Tipo.ARQUIVO
+                        or (questao.exige_evidencia_se_sim and resposta and resposta.resposta == Resposta.Valor.SIM)
+                    )
+                    and not evidencia_ok
                 )
-                and not evidencia_ok
-            )
             if questao.uso_interno_compras:
-                editable = is_compras(user) or is_admin(user)
+                base_editable = (is_compras(user) or is_admin(user)) and avaliacao.status in status_compras_editavel
             else:
-                editable = is_fornecedor(user) or is_admin(user)
-                total_fornecedor += 1
+                base_editable = (is_fornecedor(user) or is_admin(user)) and avaliacao.status in status_fornecedor_editavel
+                if not dispensada:
+                    total_fornecedor += 1
+                    if respondida:
+                        respondidas_fornecedor += 1
+            if not dispensada:
+                cat_total += 1
                 if respondida:
-                    respondidas_fornecedor += 1
-            cat_total += 1
-            if respondida:
-                cat_respondidas += 1
+                    cat_respondidas += 1
             if missing_file:
                 anexos_pendentes += 1
-            if questao.critica and resposta and resposta.resposta == Resposta.Valor.NAO:
+            if not dispensada and questao.critica and resposta and resposta.resposta == Resposta.Valor.NAO:
                 criticos += 1
+            is_dispensa_trigger = questao_dispensa_subsequentes(questao)
             questoes.append(
                 {
                     "questao": questao,
                     "resposta": resposta,
                     "respondida": respondida,
                     "missing_file": missing_file,
-                    "editable": editable,
+                    "editable": base_editable and not dispensada,
+                    "base_editable": base_editable,
                     "opcoes": questao.opcoes.filter(ativa=True),
+                    "dispensada": dispensada,
+                    "dispensa_trigger": is_dispensa_trigger,
+                    "max_arquivos": max_arquivos_questao(questao),
                 }
             )
+            if is_dispensa_trigger and resposta and resposta.resposta == Resposta.Valor.SIM:
+                dispensa_ativa = True
         if not questoes:
             continue
         categorias_data.append(
@@ -163,8 +343,10 @@ def build_avaliacao_context(user, avaliacao, cadastro_form=None):
     progress_total = total_fornecedor + dados_total
     progress_done = respondidas_fornecedor + dados_preenchidos
     progresso = round((progress_done / progress_total) * 100) if progress_total else 0
+    respostas_internas_status = get_respostas_internas_status(avaliacao) if can_review else {"total": 0, "respondidas": 0, "pendentes": 0}
     form = cadastro_form or FornecedorCadastroForm(instance=avaliacao.fornecedor)
-    if is_compras(user) and not is_admin(user):
+    can_edit_supplier_answers = (is_fornecedor(user) or is_admin(user)) and avaliacao.status in status_fornecedor_editavel
+    if (is_compras(user) and not is_admin(user)) or (is_fornecedor(user) and not can_edit_supplier_answers):
         for field in form.fields.values():
             field.disabled = True
     status_label = STATUS_LABELS.get(avaliacao.status, avaliacao.get_status_display())
@@ -173,6 +355,7 @@ def build_avaliacao_context(user, avaliacao, cadastro_form=None):
         "cadastro_form": form,
         "categorias_data": categorias_data,
         "can_review": can_review,
+        "can_edit_supplier_answers": can_edit_supplier_answers,
         "status_label": status_label,
         "dados_total": dados_total,
         "dados_preenchidos": dados_preenchidos,
@@ -183,6 +366,10 @@ def build_avaliacao_context(user, avaliacao, cadastro_form=None):
         "pendencias": max(progress_total - progress_done, 0),
         "anexos_pendentes": anexos_pendentes,
         "criticos": criticos,
+        "respostas_internas_total": respostas_internas_status["total"],
+        "respostas_internas_respondidas": respostas_internas_status["respondidas"],
+        "respostas_internas_pendentes": respostas_internas_status["pendentes"],
+        "compras_pode_decidir": respostas_internas_status["pendentes"] == 0,
     }
 
 
@@ -266,18 +453,40 @@ def process_avaliacao_submission(*, avaliacao, user, post_data, files, request=N
                 "cadastro_form": cadastro_form,
             }
 
-    questoes = Questao.objects.filter(categoria__versao=avaliacao.questionario_versao, ativa=True).prefetch_related("opcoes")
+    respostas_existentes = {r.questao_id: r for r in avaliacao.respostas.select_related("questao")}
+    questoes = (
+        Questao.objects.filter(categoria__versao=avaliacao.questionario_versao, ativa=True)
+        .select_related("categoria")
+        .prefetch_related("opcoes")
+    )
+    categorias_dispensadas = set()
     for questao in questoes:
         if questao.uso_interno_compras and not (is_compras(user) or is_admin(user)):
             continue
         if not questao.uso_interno_compras and not (is_fornecedor(user) or is_admin(user)):
             continue
-        valor = resposta_valida(questao, post_data.get(f"q_{questao.id}", ""))
-        file_obj = files.get(f"q_{questao.id}_file")
-        if not valor and file_obj and questao.tipo == Questao.Tipo.ARQUIVO:
-            valor = Resposta.Valor.SIM
-        if not valor and not file_obj:
+        if not questao.uso_interno_compras and questao.categoria_id in categorias_dispensadas:
             continue
+        valor = resposta_valida(questao, post_data.get(f"q_{questao.id}", ""))
+        if not valor:
+            resposta_existente = respostas_existentes.get(questao.id)
+            valor_para_regra = resposta_existente.resposta if resposta_existente else ""
+        else:
+            valor_para_regra = valor
+        arquivos = _arquivos_enviados(files, f"q_{questao.id}_file")
+        if not valor and arquivos and questao.tipo == Questao.Tipo.ARQUIVO:
+            valor = Resposta.Valor.SIM
+        if questao.tipo != Questao.Tipo.ARQUIVO and valor != Resposta.Valor.SIM:
+            arquivos = []
+        if not valor and not arquivos:
+            if questao_dispensa_subsequentes(questao) and valor_para_regra == Resposta.Valor.SIM:
+                categorias_dispensadas.add(questao.categoria_id)
+            continue
+        max_arquivos = max_arquivos_questao(questao)
+        resposta_existente = respostas_existentes.get(questao.id)
+        evidencias_existentes = resposta_existente.evidencias.filter(ativo=True).count() if resposta_existente else 0
+        if len(arquivos) > max_arquivos or (max_arquivos > 1 and evidencias_existentes + len(arquivos) > max_arquivos):
+            raise ValidationError(f"Anexe no máximo {max_arquivos} arquivo(s) para: {questao.enunciado[:90]}")
         resposta = salvar_resposta(
             avaliacao=avaliacao,
             questao=questao,
@@ -286,8 +495,10 @@ def process_avaliacao_submission(*, avaliacao, user, post_data, files, request=N
             observacao=post_data.get(f"q_{questao.id}_obs", "")[:1000],
             justificativa="",
         )
-        if file_obj:
+        for file_obj in arquivos:
             anexar_evidencia(resposta=resposta, file_obj=file_obj, usuario=user, request=request)
+        if questao_dispensa_subsequentes(questao) and resposta.resposta == Resposta.Valor.SIM:
+            categorias_dispensadas.add(questao.categoria_id)
 
     if action == "enviar":
         enviar_avaliacao(avaliacao, user, request=request)
@@ -383,10 +594,13 @@ def validate_respostas_completas(avaliacao):
     questoes = avaliacao.questionario_versao.categorias.filter(ativa=True).prefetch_related("questoes")
     respostas = {r.questao_id: r for r in avaliacao.respostas.select_related("questao").prefetch_related("evidencias")}
     for categoria in questoes:
+        dispensa_ativa = False
         for questao in categoria.questoes.filter(ativa=True):
             if questao.uso_interno_compras:
                 continue
             resposta = respostas.get(questao.id)
+            if dispensa_ativa:
+                continue
             if questao.obrigatoria and (not resposta or not resposta.resposta):
                 erros.append(f"Responda a pergunta: {questao.enunciado[:90]}")
                 continue
@@ -400,29 +614,61 @@ def validate_respostas_completas(avaliacao):
             if questao.exige_justificativa_se_nao and resposta.resposta == Resposta.Valor.NAO:
                 if not resposta.justificativa.strip():
                     erros.append(f"Informe justificativa para: {questao.enunciado[:90]}")
+            if questao_dispensa_subsequentes(questao) and resposta.resposta == Resposta.Valor.SIM:
+                dispensa_ativa = True
     if erros:
         raise ValidationError(erros)
+
+
+def get_respostas_internas_status(avaliacao):
+    questoes = Questao.objects.filter(
+        categoria__versao=avaliacao.questionario_versao,
+        ativa=True,
+        uso_interno_compras=True,
+    )
+    total = questoes.count()
+    respondidas = avaliacao.respostas.filter(
+        questao__in=questoes,
+        resposta__in={"0", "1", "2", "3", "4", "5"},
+    ).count()
+    return {"total": total, "respondidas": respondidas, "pendentes": max(total - respondidas, 0)}
+
+
+def validate_respostas_internas_completas(avaliacao):
+    status = get_respostas_internas_status(avaliacao)
+    if status["pendentes"]:
+        raise ValidationError(
+            f"Preencha a seção Uso interno (Compras) antes de aprovar ou reprovar. "
+            f"Faltam {status['pendentes']} de {status['total']} resposta(s)."
+        )
 
 
 def calcular_pontuacao(avaliacao):
     total = Decimal("0.00")
     maximo = Decimal("0.00")
-    respostas = avaliacao.respostas.select_related("questao", "questao__categoria")
-    for resposta in respostas:
-        questao = resposta.questao
-        if questao.uso_interno_compras:
-            continue
-        peso = questao.peso * questao.categoria.peso
-        if questao.tipo == Questao.Tipo.ESCALA_0_5:
-            try:
-                total += peso * (Decimal(resposta.resposta) / Decimal("5"))
-            except Exception:
-                pass
-        elif resposta.resposta == Resposta.Valor.SIM:
-            total += peso
-        elif resposta.resposta == Resposta.Valor.NA:
-            maximo -= peso
-        maximo += peso
+    respostas = {r.questao_id: r for r in avaliacao.respostas.select_related("questao", "questao__categoria")}
+    categorias = avaliacao.questionario_versao.categorias.filter(ativa=True).prefetch_related("questoes")
+    for categoria in categorias:
+        dispensa_ativa = False
+        for questao in categoria.questoes.filter(ativa=True):
+            if questao.uso_interno_compras or dispensa_ativa:
+                continue
+            resposta = respostas.get(questao.id)
+            if not resposta:
+                continue
+            peso = questao.peso * questao.categoria.peso
+            if questao.tipo == Questao.Tipo.ESCALA_0_5:
+                try:
+                    total += peso * (Decimal(resposta.resposta) / Decimal("5"))
+                except Exception:
+                    pass
+            elif resposta.resposta == Resposta.Valor.SIM:
+                total += peso
+            elif resposta.resposta == Resposta.Valor.NA:
+                maximo -= peso
+            maximo += peso
+            if questao_dispensa_subsequentes(questao) and resposta.resposta == Resposta.Valor.SIM:
+                dispensa_ativa = True
     if maximo == 0:
         return Decimal("0.00")
     return (total / maximo * Decimal("100.00")).quantize(Decimal("0.01"))
@@ -478,51 +724,27 @@ def salvar_resposta(*, avaliacao, questao, usuario, resposta, observacao="", jus
 
 
 def validar_upload(file_obj):
-    allowed = Configuracao.get_value("UPLOAD_EXTENSOES_PERMITIDAS", default={"extensoes": ["pdf", "jpg", "jpeg", "png", "docx", "xlsx"]})
     max_bytes = Configuracao.get_value("UPLOAD_MAX_BYTES", default={"bytes": 10 * 1024 * 1024})
-    extensoes = {e.lower().lstrip(".") for e in allowed.get("extensoes", [])}
     ext = Path(file_obj.name).suffix.lower().lstrip(".")
-    if ext not in extensoes:
-        raise ValidationError("Extensão de arquivo não permitida.")
+    if ext != "pdf":
+        raise ValidationError("Apenas arquivos PDF são permitidos.")
     if file_obj.size > int(max_bytes.get("bytes", 10 * 1024 * 1024)):
         raise ValidationError("Arquivo acima do tamanho permitido.")
     content_type = getattr(file_obj, "content_type", "") or ""
-    mime_ok = {
-        "pdf": "application/pdf",
-        "jpg": "image/jpeg",
-        "jpeg": "image/jpeg",
-        "png": "image/png",
-        "docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        "xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    }
-    expected = mime_ok.get(ext)
-    if expected and content_type and content_type != expected:
-        raise ValidationError("Tipo MIME incompatível com a extensão enviada.")
-    signatures = {
-        "pdf": [b"%PDF"],
-        "jpg": [b"\xff\xd8\xff"],
-        "jpeg": [b"\xff\xd8\xff"],
-        "png": [b"\x89PNG\r\n\x1a\n"],
-        "docx": [b"PK\x03\x04"],
-        "xlsx": [b"PK\x03\x04"],
-    }
+    if content_type and content_type != "application/pdf":
+        raise ValidationError("Apenas arquivos PDF são permitidos.")
     position = file_obj.tell() if hasattr(file_obj, "tell") else 0
     head = file_obj.read(16)
     if hasattr(file_obj, "seek"):
         file_obj.seek(position)
-    if ext in signatures and not any(head.startswith(sig) for sig in signatures[ext]):
-        raise ValidationError("Assinatura real do arquivo incompatível com a extensão.")
+    if not head.startswith(b"%PDF"):
+        raise ValidationError("O arquivo enviado não parece ser um PDF válido.")
     varrer_antivirus(file_obj)
 
 
 def _antivirus_command():
     if settings.ANTIVIRUS_COMMAND:
         return shlex.split(settings.ANTIVIRUS_COMMAND)
-    defender = Path("C:/ProgramData/Microsoft/Windows Defender/Platform")
-    if defender.exists():
-        candidates = sorted(defender.glob("*/MpCmdRun.exe"), reverse=True)
-        if candidates:
-            return [str(candidates[0]), "-Scan", "-ScanType", "3", "-File"]
     return []
 
 
@@ -683,6 +905,7 @@ def finalizar_avaliacao(avaliacao, usuario, request=None):
     destino = Avaliacao.Status.FINALIZADA
     assert_transition(avaliacao, destino)
     validate_respostas_completas(avaliacao)
+    validate_respostas_internas_completas(avaliacao)
     pontuacao = calcular_pontuacao(avaliacao)
     status_qualificacao = definir_status_qualificacao(pontuacao)
     hoje = timezone.localdate()
@@ -725,6 +948,7 @@ def reprovar_avaliacao(avaliacao, usuario, comentario, request=None):
         avaliacao.refresh_from_db()
     if avaliacao.status != Avaliacao.Status.EM_ANALISE:
         raise ValidationError("Esta avaliação não permite reprovação neste status.")
+    validate_respostas_internas_completas(avaliacao)
     if not comentario.strip():
         raise ValidationError("Parecer de reprovação é obrigatório.")
 

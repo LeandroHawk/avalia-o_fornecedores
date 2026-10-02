@@ -58,7 +58,7 @@
           <div class="internal-note">Seção de preenchimento exclusivo da equipe de Compras. O fornecedor não responde estes itens.</div>
         {% endif %}
         {% for item in grupo.questoes %}
-          <div class="supplier-question">
+          <div class="supplier-question {% if item.dispensada %}is-dispensed{% endif %}" data-question-row data-base-editable="{{ item.base_editable|yesno:'true,false' }}" {% if item.dispensa_trigger %}data-dispensa-trigger="true"{% endif %} {% if item.dispensada %}data-dispensed="true" hidden style="display: none;"{% endif %}>
             <div class="question-copy">
               <strong>{{ item.questao.enunciado }}</strong>
               {% if can_review and item.questao.critica %}<span class="critical-chip">Crítico</span>{% endif %}
@@ -89,7 +89,7 @@
                 <input type="hidden" name="q_{{ item.questao.id }}" value="SIM">
                 <label class="btn btn-outline-primary file-button" data-file-control>
                   Anexar arquivo
-                  <input class="visually-hidden" type="file" name="q_{{ item.questao.id }}_file" data-file-input {% if not item.editable %}disabled{% endif %}>
+                  <input class="visually-hidden" type="file" name="q_{{ item.questao.id }}_file" accept="application/pdf,.pdf" data-file-input data-max-files="{{ item.max_arquivos }}" {% if item.max_arquivos > 1 %}multiple{% endif %} {% if not item.editable %}disabled{% endif %}>
                 </label>
                 <div class="file-selected is-empty" data-file-selected aria-live="polite">Nenhum arquivo selecionado</div>
                 <button class="btn btn-outline-secondary btn-sm file-clear-button is-filtered-out" type="button" data-file-clear>Limpar arquivo</button>
@@ -101,6 +101,17 @@
                   <input type="radio" class="btn-check" name="q_{{ item.questao.id }}" id="q{{ item.questao.id }}_nao" value="NAO" {% if item.resposta.resposta == "NAO" %}checked{% endif %} {% if not item.editable %}disabled{% endif %}>
                   <label class="btn btn-outline-primary" for="q{{ item.questao.id }}_nao">Não</label>
                 </div>
+                {% if item.questao.exige_evidencia_se_sim %}
+                  <div class="conditional-file-field" data-evidence-when-sim {% if item.resposta.resposta != "SIM" %}hidden{% endif %}>
+                    <label class="btn btn-outline-primary file-button" data-file-control>
+                      Anexar arquivo
+                      <input class="visually-hidden" type="file" name="q_{{ item.questao.id }}_file" accept="application/pdf,.pdf" data-file-input data-conditional-file data-max-files="{{ item.max_arquivos }}" {% if item.max_arquivos > 1 %}multiple{% endif %} {% if not item.editable or item.resposta.resposta != "SIM" %}disabled{% endif %}>
+                    </label>
+                    <div class="file-selected is-empty" data-file-selected aria-live="polite">Nenhum arquivo selecionado</div>
+                    <button class="btn btn-outline-secondary btn-sm file-clear-button is-filtered-out" type="button" data-file-clear {% if not item.editable or item.resposta.resposta != "SIM" %}disabled{% endif %}>Limpar arquivo</button>
+                    {% if item.missing_file %}<span class="badge bg-yellow-lt">Anexo pendente</span>{% endif %}
+                  </div>
+                {% endif %}
               {% endif %}
               {% if can_review and not item.questao.uso_interno_compras %}
                 <details class="adjustment-control">
@@ -143,25 +154,34 @@
         {% endfor %}
         <h3>Críticos não atendidos</h3>
         <p class="text-secondary">{% if criticos %}{{ criticos }} item(ns) crítico(s){% else %}Nenhum até o momento{% endif %}</p>
+        {% if respostas_internas_pendentes %}
+          <div class="internal-decision-warning">
+            Complete Uso interno (Compras): faltam {{ respostas_internas_pendentes }} de {{ respostas_internas_total }} resposta(s).
+          </div>
+        {% endif %}
         <label class="form-label">Parecer de Compras</label>
         <textarea class="form-control" name="parecer" rows="4" placeholder="Registre o parecer da análise"></textarea>
         <div class="d-flex flex-wrap gap-2 mt-3">
-          <button class="btn btn-primary" type="submit" name="action" value="homologar">Aprovar</button>
+          <button class="btn btn-primary" type="submit" name="action" value="homologar" {% if not compras_pode_decidir %}disabled title="Complete a seção Uso interno (Compras) antes de decidir"{% endif %}>Aprovar</button>
           <button class="btn btn-outline-warning" type="submit" name="action" value="solicitar_ajustes">Solicitar ajustes</button>
-          <button class="btn btn-outline-danger" type="submit" name="action" value="reprovar">Reprovar</button>
+          <button class="btn btn-outline-danger" type="submit" name="action" value="reprovar" {% if not compras_pode_decidir %}disabled title="Complete a seção Uso interno (Compras) antes de decidir"{% endif %}>Reprovar</button>
           <button class="btn btn-outline-secondary" type="button" onclick="window.print()">Imprimir ou salvar PDF</button>
         </div>
       </div>
     {% else %}
       <div class="progress-card">
         <h3>Seu progresso</h3>
-        <div class="progress-number">{{ progresso }}<span>%</span></div>
-        <div class="progress progress-sm mb-3"><div class="progress-bar" style="width: {{ progresso }}%"></div></div>
+        <div class="progress-number" data-overall-progress>{{ progresso }}<span>%</span></div>
+        <div class="progress progress-sm mb-3"><div class="progress-bar" data-overall-progress-bar style="width: {{ progresso }}%"></div></div>
         <span class="badge bg-primary-lt">{{ status_label }}</span>
-        <p class="text-secondary mt-3">Faltam {{ pendencias }} respostas e {{ anexos_pendentes }} anexos.</p>
+        <p class="text-secondary mt-3" data-pending-copy>Faltam {{ pendencias }} respostas e {{ anexos_pendentes }} anexos.</p>
         <div class="d-grid gap-2">
-          <button class="btn btn-outline-primary" type="submit" name="action" value="salvar" formnovalidate>Salvar rascunho</button>
-          <button class="btn btn-primary" type="submit" name="action" value="enviar" {% if pendencias %}disabled{% endif %}>Enviar para análise</button>
+          {% if can_edit_supplier_answers %}
+            <button class="btn btn-outline-primary" type="submit" name="action" value="salvar" formnovalidate>Salvar rascunho</button>
+            <button class="btn btn-primary" type="submit" name="action" value="enviar" data-submit-final {% if pendencias %}disabled{% endif %}>Enviar para análise</button>
+          {% else %}
+            <button class="btn btn-primary" type="button" disabled>Avaliação enviada</button>
+          {% endif %}
         </div>
       </div>
     {% endif %}

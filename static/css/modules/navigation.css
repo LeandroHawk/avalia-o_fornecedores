@@ -9,7 +9,7 @@
   inset: 0 auto 0 0;
   z-index: 1030;
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: auto 1fr;
   width: var(--app-sidebar-width);
   padding: 24px 18px 18px;
   background: #fff;
@@ -18,11 +18,10 @@
 
 .app-sidebar-brand {
   display: grid;
-  grid-template-columns: 78px minmax(0, 1fr);
-  gap: 12px;
+  grid-template-columns: 78px;
   align-items: center;
-  min-height: 78px;
-  padding-bottom: 18px;
+  min-height: 68px;
+  padding-bottom: 12px;
   color: var(--cesari-ink);
   text-decoration: none;
 }
@@ -94,12 +93,6 @@
   box-shadow: inset 3px 0 0 var(--cesari-blue);
 }
 
-.app-sidebar-footer {
-  display: grid;
-  gap: 12px;
-}
-
-.app-user-card,
 .app-profile-pill {
   display: grid;
   grid-template-columns: 40px minmax(0, 1fr);
@@ -110,10 +103,6 @@
   border: 1px solid #dfe8f4;
   border-radius: 13px;
   box-shadow: 0 5px 14px rgba(27, 49, 84, .04);
-}
-
-.app-user-card {
-  padding: 10px;
 }
 
 .app-user-avatar {
@@ -127,7 +116,6 @@
   font-weight: 900;
 }
 
-.app-user-card strong,
 .app-profile-pill strong {
   display: block;
   overflow: hidden;
@@ -138,7 +126,6 @@
   white-space: nowrap;
 }
 
-.app-user-card small,
 .app-profile-pill small {
   display: block;
   overflow: hidden;
@@ -148,11 +135,20 @@
   white-space: nowrap;
 }
 
-.app-logout-btn {
-  width: 100%;
+.app-topbar-logout-form {
+  margin: 0;
+}
+
+.app-logout-icon-button {
   color: var(--cesari-danger);
-  background: #fff;
   border: 1px solid #f0c5c1;
+}
+
+.app-logout-icon-button:hover,
+.app-logout-icon-button:focus-visible {
+  color: #b42318;
+  background: #fff5f4;
+  border-color: #f3aaa4;
 }
 
 .app-topbar {

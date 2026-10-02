@@ -9,6 +9,13 @@
     return `${value.toLocaleString("pt-BR", { maximumFractionDigits: index ? 1 : 0 })} ${units[index]}`;
   };
 
+  const hasEvidence = (question) => {
+    const fileInput = question.querySelector("[data-file-input]");
+    const hasExistingFile = Boolean(question.querySelector(".badge.bg-green-lt"));
+    const hasSelectedFile = fileInput?.files && fileInput.files.length > 0;
+    return hasExistingFile || hasSelectedFile;
+  };
+
   const countSection = (section) => {
     if (section.id === "dados") {
       const fields = [...section.querySelectorAll("input, select, textarea")].filter(
@@ -18,19 +25,23 @@
       return { done, total: fields.length || Number(section.dataset.total || 0) };
     }
 
-    const questions = [...section.querySelectorAll(".supplier-question")];
+    const questions = [...section.querySelectorAll(".supplier-question")].filter(
+      (question) => !question.hidden && question.dataset.dispensed !== "true"
+    );
     const done = questions.filter((question) => {
-      const fileInput = question.querySelector('[type="file"]');
+      const fileInput = question.querySelector('[type="file"]:not([data-conditional-file])');
       if (fileInput) {
-        const hasExistingFile = Boolean(question.querySelector(".badge.bg-green-lt"));
-        const hasSelectedFile = fileInput.files && fileInput.files.length > 0;
         const missingFile = Boolean(question.querySelector(".bg-yellow-lt"));
-        return hasExistingFile || hasSelectedFile || !missingFile;
+        return hasEvidence(question) || !missingFile;
       }
 
       const checked = question.querySelector("input[type='radio']:checked, input[type='checkbox']:checked");
+      const evidenceWhenSim = question.querySelector("[data-evidence-when-sim]");
+      if (evidenceWhenSim && checked?.value === "SIM") {
+        return hasEvidence(question);
+      }
       const select = question.querySelector("select");
-      const text = question.querySelector("textarea, input:not([type='hidden']):not([type='radio']):not([type='checkbox'])");
+      const text = question.querySelector("textarea, input:not([type='hidden']):not([type='radio']):not([type='checkbox']):not([type='file'])");
       return Boolean(checked || (select && select.value) || (text && String(text.value || "").trim()));
     }).length;
 
@@ -56,6 +67,106 @@
       }
       if (navLink) navLink.textContent = `${done}/${total}`;
     });
+  };
+
+  const setQuestionDispensed = (question, dispensed) => {
+    question.dataset.dispensed = dispensed ? "true" : "false";
+    question.hidden = dispensed;
+    question.classList.toggle("is-dispensed", dispensed);
+    question.style.display = dispensed ? "none" : "";
+    question.querySelectorAll("input, select, textarea, button").forEach((field) => {
+      if (dispensed) {
+        field.disabled = true;
+      } else {
+        field.disabled = question.dataset.baseEditable !== "true";
+      }
+    });
+  };
+
+  const applyDispensaRules = (form) => {
+    form.querySelectorAll("[data-section-progress]").forEach((section) => {
+      const questions = [...section.querySelectorAll("[data-question-row]")];
+      let dispensaAtiva = false;
+      questions.forEach((question) => {
+        if (dispensaAtiva) {
+          setQuestionDispensed(question, true);
+          return;
+        }
+
+        setQuestionDispensed(question, false);
+        if (question.dataset.dispensaTrigger === "true") {
+          const sim = question.querySelector("input[type='radio'][value='SIM']:checked");
+          dispensaAtiva = Boolean(sim);
+        }
+      });
+    });
+  };
+
+  const syncEvidenceWhenSim = (form) => {
+    form.querySelectorAll("[data-evidence-when-sim]").forEach((block) => {
+      const question = block.closest("[data-question-row]");
+      if (!question) return;
+
+      const simChecked = Boolean(question.querySelector("input[type='radio'][value='SIM']:checked"));
+      const hidden = !simChecked || question.hidden || question.dataset.dispensed === "true";
+      const editable = question.dataset.baseEditable === "true" && !hidden;
+      block.hidden = hidden;
+      block.querySelectorAll("input, button").forEach((field) => {
+        field.disabled = !editable;
+        if (hidden && field.matches("[data-file-input]")) {
+          field.value = "";
+          const selected = block.querySelector("[data-file-selected]");
+          const clear = block.querySelector("[data-file-clear]");
+          if (selected) {
+            selected.textContent = "Nenhum arquivo selecionado";
+            selected.classList.add("is-empty");
+          }
+          if (clear) clear.classList.add("is-filtered-out");
+        }
+      });
+    });
+  };
+
+  const getProgressTotals = (form) => {
+    return [...form.querySelectorAll("[data-section-progress]")].reduce(
+      (totals, section) => {
+        const { done, total } = countSection(section);
+        totals.done += done;
+        totals.total += total;
+        if (section.id !== "dados") {
+          totals.pendingFiles += [...section.querySelectorAll("[data-question-row]")].filter((question) => {
+            if (question.hidden || question.dataset.dispensed === "true") return false;
+            const fileInput = question.querySelector("[data-file-input]");
+            if (!fileInput) return false;
+            const evidenceWhenSim = question.querySelector("[data-evidence-when-sim]");
+            if (evidenceWhenSim && !question.querySelector("input[type='radio'][value='SIM']:checked")) return false;
+            const missingFile = Boolean(question.querySelector(".bg-yellow-lt"));
+            return (missingFile || evidenceWhenSim) && !hasEvidence(question);
+          }).length;
+        }
+        return totals;
+      },
+      { done: 0, total: 0, pendingFiles: 0 }
+    );
+  };
+
+  const updateOverallProgress = (form) => {
+    const { done, total, pendingFiles } = getProgressTotals(form);
+    const pending = Math.max(total - done, 0);
+    const percent = total ? Math.round((done / total) * 100) : 0;
+    const progressNumber = form.querySelector("[data-overall-progress]");
+    const progressBar = form.querySelector("[data-overall-progress-bar]");
+    const pendingCopy = form.querySelector("[data-pending-copy]");
+    const submitFinal = form.querySelector("[data-submit-final]");
+
+    if (progressNumber) progressNumber.innerHTML = `${percent}<span>%</span>`;
+    if (progressBar) progressBar.style.width = `${percent}%`;
+    if (pendingCopy) {
+      const respostaLabel = pending === 1 ? "resposta" : "respostas";
+      const anexoLabel = pendingFiles === 1 ? "anexo" : "anexos";
+      pendingCopy.textContent = `Faltam ${pending} ${respostaLabel} e ${pendingFiles} ${anexoLabel}.`;
+    }
+    if (submitFinal) submitFinal.disabled = pending > 0;
   };
 
   const createSummary = (form) => {
@@ -135,9 +246,23 @@
       if (!selected || !clear) return;
 
       const render = () => {
-        const file = input.files?.[0];
-        if (file) {
-          selected.textContent = `${file.name} (${formatBytes(file.size)})`;
+        const maxFiles = Number(input.dataset.maxFiles || 1);
+        const files = [...(input.files || [])];
+        if (files.length > maxFiles) {
+          if (window.DataTransfer) {
+            const transfer = new DataTransfer();
+            files.slice(0, maxFiles).forEach((file) => transfer.items.add(file));
+            input.files = transfer.files;
+          } else {
+            input.value = "";
+          }
+        }
+
+        const selectedFiles = [...(input.files || [])];
+        if (selectedFiles.length) {
+          const names = selectedFiles.map((file) => `${file.name} (${formatBytes(file.size)})`).join(", ");
+          selected.textContent =
+            files.length > maxFiles ? `Máximo de ${maxFiles} arquivos. Selecionados: ${names}` : names;
           selected.classList.remove("is-empty");
           clear.classList.remove("is-filtered-out");
         } else {
@@ -181,7 +306,10 @@
     if (form.dataset.formReady) return;
     form.dataset.formReady = "true";
 
+    applyDispensaRules(form);
+    syncEvidenceWhenSim(form);
     updateSectionProgress(form);
+    updateOverallProgress(form);
     updateSummary(form);
     initSectionNavigation(form);
     initFileInputs(form);
@@ -189,11 +317,17 @@
     initFirstPending(form);
 
     form.addEventListener("input", () => {
+      applyDispensaRules(form);
+      syncEvidenceWhenSim(form);
       updateSectionProgress(form);
+      updateOverallProgress(form);
       updateSummary(form);
     });
     form.addEventListener("change", () => {
+      applyDispensaRules(form);
+      syncEvidenceWhenSim(form);
       updateSectionProgress(form);
+      updateOverallProgress(form);
       updateSummary(form);
     });
   };

@@ -4,10 +4,6 @@
     <aside class="app-sidebar" aria-label="Navegação principal">
       <a class="app-sidebar-brand" href="{% url 'dashboard' %}">
         <img class="app-sidebar-logo-mark" src="{% static 'img/logotipo-cesari-color.svg' %}" alt="CESARI">
-        <span>
-          <strong>Célula de Inovação</strong>
-          <small>Centro de comando da inovação</small>
-        </span>
       </a>
 
       <nav class="app-sidebar-nav">
@@ -20,22 +16,6 @@
         {% endfor %}
       </nav>
 
-      <div class="app-sidebar-footer">
-        <div class="app-user-card">
-          <span class="app-user-avatar">{{ request.user.first_name|default:request.user.username|first|upper }}</span>
-          <span>
-            <strong>{{ request.user.first_name|default:request.user.username }}</strong>
-            <small>{{ request.user.profile.get_role_display|default:"Usuário" }}</small>
-          </span>
-        </div>
-        <form class="logout-form" method="post" action="{% url 'logout' %}">
-          {% csrf_token %}
-          <button class="btn app-logout-btn" type="submit">
-            <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-logout"></use></svg>
-            Sair
-          </button>
-        </form>
-      </div>
     </aside>
   {% endif %}
 
@@ -67,6 +47,12 @@
             <small>{{ request.user.profile.get_role_display|default:"Equipe de Inovação" }}</small>
           </span>
         </div>
+        <form class="logout-form app-topbar-logout-form" method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button class="btn app-icon-button app-logout-icon-button" type="submit" aria-label="Sair">
+            <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-logout"></use></svg>
+          </button>
+        </form>
       </div>
     {% else %}
       <a class="btn btn-primary app-topbar-action" href="{% url 'login' %}">Entrar</a>
@@ -78,10 +64,6 @@
       <div class="app-mobile-sidebar-inner">
         <a class="app-sidebar-brand" href="{% url 'dashboard' %}">
           <img class="app-sidebar-logo-mark" src="{% static 'img/logotipo-cesari-color.svg' %}" alt="CESARI">
-          <span>
-            <strong>Célula de Inovação</strong>
-            <small>Centro de comando da inovação</small>
-          </span>
         </a>
         <nav class="app-sidebar-nav">
           {% for item in app_navigation_items %}

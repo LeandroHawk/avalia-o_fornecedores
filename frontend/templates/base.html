@@ -12,10 +12,10 @@
 </head>
 <body>
   {% block header %}
-    {% include "partials/header.html" %}
+    {% include "header.html" %}
   {% endblock %}
   <main>
-    {% include "partials/messages.html" %}
+    {% include "messages.html" %}
     {% block conteudo %}{% endblock %}
   </main>
   <script src="{% static 'tabler/js/tabler.min.js' %}"></script>

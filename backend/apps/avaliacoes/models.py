@@ -69,7 +69,7 @@ class Resposta(TimeStampedModel):
 
     avaliacao = models.ForeignKey(Avaliacao, on_delete=models.CASCADE, related_name="respostas")
     questao = models.ForeignKey(Questao, on_delete=models.PROTECT, related_name="respostas")
-    resposta = models.CharField(max_length=30, choices=Valor.choices, blank=True)
+    resposta = models.CharField(max_length=80, blank=True)
     observacao = models.TextField(blank=True)
     justificativa = models.TextField(blank=True)
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="respostas")

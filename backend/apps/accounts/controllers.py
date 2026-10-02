@@ -3,7 +3,7 @@ from django.urls import reverse_lazy
 
 
 class AppLoginView(LoginView):
-    template_name = "registration/login.html"
+    template_name = "login.html"
     redirect_authenticated_user = True
 
     def get_default_redirect_url(self):

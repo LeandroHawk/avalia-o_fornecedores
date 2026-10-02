@@ -8,7 +8,7 @@
       <div class="row g-2 align-items-center">
         <div class="col">
           <h1 class="page-title">Indicadores</h1>
-          <div class="page-pretitle">Vis&atilde;o anal&iacute;tica das avalia&ccedil;&otilde;es de fornecedores</div>
+          <div class="page-pretitle">Visão analítica das avaliações de fornecedores</div>
         </div>
       </div>
     </div>
@@ -32,7 +32,7 @@
               <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-bulb"></use></svg>
             </span>
             <strong data-counter data-counter-value="{{ total_avaliacoes }}">{{ total_avaliacoes }}</strong>
-            <span>Avalia&ccedil;&otilde;es registradas</span>
+            <span>Avaliações registradas</span>
           </article>
 
           <article class="reference-metric-card">
@@ -40,7 +40,7 @@
               <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-trending-up"></use></svg>
             </span>
             <strong data-counter data-counter-value="{{ taxa_homologacao }}" data-counter-suffix="%">{{ taxa_homologacao }}%</strong>
-            <span>Taxa m&eacute;dia de aprova&ccedil;&atilde;o</span>
+            <span>Taxa média de aprovação</span>
           </article>
 
           <article class="reference-metric-card">
@@ -48,7 +48,7 @@
               <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-hourglass"></use></svg>
             </span>
             <strong data-counter data-counter-value="{{ vencendo }}">{{ vencendo }}</strong>
-            <span>Vencendo em at&eacute; 30 dias</span>
+            <span>Vencendo em até 30 dias</span>
           </article>
         </div>
 
@@ -58,12 +58,12 @@
               <div>
                 <h2>
                   <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-chart-donut"></use></svg>
-                  Distribui&ccedil;&atilde;o por status
+                  Distribuição por status
                 </h2>
               </div>
             </header>
             <div class="innovation-chart-body">
-              <div class="innovation-donut chart-shell" data-chart="status-donut" data-total="{{ total_avaliacoes }}" role="img" aria-label="Gr&aacute;fico de distribui&ccedil;&atilde;o por status">
+              <div class="innovation-donut chart-shell" data-chart="status-donut" data-total="{{ total_avaliacoes }}" role="img" aria-label="Gráfico de distribuição por status">
                 {% for item in status_chart %}
                   <span class="chart-pie-slice-data" data-label="{{ item.label }}" data-count="{{ item.count }}" data-color="{{ item.color }}"></span>
                 {% endfor %}
@@ -87,12 +87,12 @@
               <div>
                 <h2>
                   <svg class="ti-icon" aria-hidden="true"><use href="{% static 'img/tabler-icons.svg' %}#ti-chart-bar"></use></svg>
-                  Fornecedores por pontua&ccedil;&atilde;o
+                  Fornecedores por pontuação
                 </h2>
               </div>
             </header>
             <div class="innovation-chart-body">
-              <div class="innovation-bars chart-shell" data-chart="score-bars" role="img" aria-label="Histograma de fornecedores por faixa de pontua&ccedil;&atilde;o">
+              <div class="innovation-bars chart-shell" data-chart="score-bars" role="img" aria-label="Histograma de fornecedores por faixa de pontuação">
                 {% for item in score_histogram %}
                   <span class="chart-bar-data" data-label="{{ item.label }}" data-count="{{ item.count }}" data-color="#4f80c9"></span>
                 {% endfor %}
